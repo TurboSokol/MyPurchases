@@ -1,0 +1,57 @@
+CREATE TABLE purchaseDb(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    parent INTEGER NOT NULL,
+    coast INTEGER NOT NULL,
+    title TEXT
+);
+
+getPurchaseAll:
+SELECT *
+FROM purchaseDb;
+
+getPurchaseById:
+SELECT *
+FROM purchaseDb
+WHERE id = :id;
+
+insertOrReplace:
+INSERT OR REPLACE
+INTO purchaseDb (
+    parent,
+    coast,
+    title
+) VALUES (?,?,?);
+
+deletePurchase:
+DELETE FROM purchaseDb
+WHERE id = :id;
+
+
+
+CREATE TABLE listsDb (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    spentSum INTEGER NOT NULL,
+    expectedSum INTEGER NOT NULL
+);
+
+getListsAll:
+SELECT *
+FROM listsDb;
+
+getListsById:
+SELECT *
+FROM listsDb
+WHERE id = :id;
+
+insertOrReplaceList:
+INSERT OR REPLACE
+INTO listsDb (
+    title,
+    spentSum,
+    expectedSum
+) VALUES (?, ?, ?);
+
+deleteList:
+DELETE FROM listsDb
+WHERE id = :id;
