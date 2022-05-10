@@ -1,6 +1,6 @@
-package com.turbosokol.mypurchases.common.my_purchases.model
+package com.turbosokol.mypurchases.common.purchases.model
 
-data class MyPurchaseModel(
+data class PurchaseModel(
     val purchaseId: Long,
     val parentListId: Long,
     val coast: Int,

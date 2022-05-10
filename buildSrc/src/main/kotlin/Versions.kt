@@ -8,7 +8,7 @@ object Versions {
         const val compose = "1.1.1"
         const val constraint_layout_compose = "1.0.0"
         const val constraint_layout = "2.1.3"
-        const val coroutines = "1.5.1-new-mm-dev2"
+        const val coroutines = "1.6.0"
         const val ktor = "1.6.2-native-mm-eap-196"
         const val sql_delight = "1.5.3"
         const val koin = "3.1.3"

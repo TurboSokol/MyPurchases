@@ -1,4 +1,4 @@
-package com.turbosokol.mypurchases.core.repository
+package com.turbosokol.mypurchases.core.repository.local
 
 import android.content.Context
 import com.squareup.sqldelight.android.AndroidSqliteDriver

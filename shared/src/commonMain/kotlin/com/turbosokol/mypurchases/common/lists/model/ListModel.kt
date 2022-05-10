@@ -1,6 +1,6 @@
-package com.turbosokol.mypurchases.common.my_lists.model
+package com.turbosokol.mypurchases.common.lists.model
 
-data class MyListModel (
+data class ListModel (
 val listId: Long,
 val title: String,
 val spentSum: Int,

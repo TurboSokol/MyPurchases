@@ -1,4 +1,4 @@
-package com.turbosokol.mypurchases.core.repository
+package com.turbosokol.mypurchases.core.repository.local
 
 import com.squareup.sqldelight.db.SqlDriver
 import com.turbosokol.mypurchases.SqlDatabase

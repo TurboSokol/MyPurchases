@@ -14,13 +14,14 @@ SELECT *
 FROM purchaseDb
 WHERE id = :id;
 
-insertOrReplace:
+insertPurchase:
 INSERT OR REPLACE
 INTO purchaseDb (
+    id,
     parent,
     coast,
     title
-) VALUES (?,?,?);
+) VALUES (?,?,?,?);
 
 deletePurchase:
 DELETE FROM purchaseDb
@@ -44,13 +45,14 @@ SELECT *
 FROM listsDb
 WHERE id = :id;
 
-insertOrReplaceList:
+insertList:
 INSERT OR REPLACE
 INTO listsDb (
+    id,
     title,
     spentSum,
     expectedSum
-) VALUES (?, ?, ?);
+) VALUES (?, ?, ?,?);
 
 deleteList:
 DELETE FROM listsDb
