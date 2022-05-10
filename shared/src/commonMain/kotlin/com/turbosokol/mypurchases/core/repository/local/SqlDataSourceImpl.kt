@@ -1,6 +1,7 @@
 package com.turbosokol.mypurchases.core.repository.local
 
 import com.turbosokol.mypurchases.SqlDatabase
+import com.turbosokol.mypurchases.utils.appDispatcher
 import comturbosokolmypurchases.ListsDb
 import comturbosokolmypurchases.PurchaseDb
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +17,11 @@ class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
     }
 
     override suspend fun getListById(id: Long): ListsDb? {
-        return withContext(Dispatchers.Main) { queries.getListsById(id).executeAsOneOrNull() }
+        return withContext(appDispatcher) { queries.getListsById(id).executeAsOneOrNull() }
     }
 
     override suspend fun insertList(id: Long?, title: String, spentSum: Long, expectedSum: Long) {
-        return withContext(Dispatchers.Main) {
+        return withContext(appDispatcher) {
             queries.insertList(
                 id,
                 title,
@@ -31,7 +32,7 @@ class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
     }
 
     override suspend fun deleteList(id: Long) {
-        return withContext(Dispatchers.Main) { queries.deleteList(id) }
+        return withContext(appDispatcher) { queries.deleteList(id) }
     }
 
     override suspend fun getAllPurchases(): Flow<List<PurchaseDb>> {
@@ -39,14 +40,14 @@ class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
     }
 
     override suspend fun getPurchaseById(id: Long): PurchaseDb? {
-        return withContext(Dispatchers.Main) { queries.getPurchaseById(id).executeAsOneOrNull() }
+        return withContext(appDispatcher) { queries.getPurchaseById(id).executeAsOneOrNull() }
     }
 
     override suspend fun insertPurchase(id: Long?, parent: Long, coast: Long, title: String?) {
-        return withContext(Dispatchers.Main) { queries.insertPurchase(id, parent, coast, title) }
+        return withContext(appDispatcher) { queries.insertPurchase(id, parent, coast, title) }
     }
 
     override suspend fun deletePurchase(id: Long) {
-        return withContext(Dispatchers.Main) { queries.deletePurchase(id) }
+        return withContext(appDispatcher) { queries.deletePurchase(id) }
     }
 }

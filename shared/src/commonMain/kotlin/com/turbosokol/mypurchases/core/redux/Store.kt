@@ -14,7 +14,7 @@ interface Effect
 
 interface Store<S: GeneralState, A: Action, E: Effect> {
     fun observeAsState(): StateFlow<S>
-    fun dispatch(action: A)
+    fun execute(action: A)
     fun getState(): S
     fun observeSideEffect(): Flow<E>
 }
@@ -30,14 +30,14 @@ open class ReduxStore(
 
     override fun observeAsState(): StateFlow<AppState> = state.asStateFlow()
 
-    override fun dispatch(action: Action) {
+    override fun execute(action: Action) {
         val oldState = state.value
         val newState = reducer.reduce(oldState, action)
 
         middlewares.forEach { middleware ->
             launch {
                 middleware.process(newState, action, sideEffect).collect { middlewareAction ->
-                    dispatch(middlewareAction)
+                    execute(middlewareAction)
                 }
             }
         }

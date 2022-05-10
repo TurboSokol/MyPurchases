@@ -1,14 +1,15 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    id("kotlin-android")
 }
 
 android {
-    compileSdk = 32
+    compileSdk = Versions.compile_sdk
     defaultConfig {
         applicationId = "com.turbosokol.mypurchases.android"
-        minSdk = 25
-        targetSdk = 32
+        minSdk = Versions.min_sdk
+        targetSdk = Versions.compile_sdk
         versionCode = 1
         versionName = "1.0"
         vectorDrawables {
@@ -31,7 +32,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = rootProject.extra["compose_version"] as String
+        kotlinCompilerExtensionVersion = Versions.compose
     }
     packagingOptions {
         resources {
@@ -42,15 +43,53 @@ android {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.appcompat:appcompat:1.3.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.0")
-    implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
-    implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
-    implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.activity:activity-compose:1.3.1")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
-    debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
+    implementation("com.google.android.material:material:1.6.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("androidx.core:core-ktx:1.7.0")
+
+    //Compose
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
+    implementation("androidx.compose.ui:ui:${Versions.compose}")
+    implementation("androidx.compose.material:material:${Versions.compose}")
+    implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
+    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
+    implementation("androidx.compose.ui:ui-util:${Versions.compose}")
+    implementation("androidx.constraintlayout:constraintlayout:${Versions.constraint_layout}")
+    implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraint_layout_compose}")
+
+    //Navigation
+    implementation("androidx.navigation:navigation-compose:2.4.2")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.21.4-beta")
+
+    //KTOR
+    implementation("io.ktor:ktor-client-android:${Versions.ktor}")
+
+    //ViewModel
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
+
+    // DI
+    implementation("io.insert-koin:koin-core:${Versions.koin}")
+    implementation("io.insert-koin:koin-android:${Versions.koin}")
+    implementation("io.insert-koin:koin-androidx-compose:${Versions.koin}")
+
+    //Tests
+    implementation ("androidx.test:rules:${Versions.test}")
+    implementation ("androidx.test:runner:${Versions.test}")
+    implementation ("androidx.compose.ui:ui-test:${Versions.compose}")
+    implementation ("androidx.compose.ui:ui-test-junit4:${Versions.compose}")
+    implementation ("androidx.compose.ui:ui-test-junit4:${Versions.compose}")
+    androidTestImplementation("androidx.test:core:${Versions.test}")
+    androidTestImplementation("androidx.test:runner:${Versions.test}")
+    androidTestImplementation("androidx.test:rules:${Versions.test}")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${Versions.compose}")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:${Versions.compose}")
+    androidTestImplementation ("androidx.test:runner:${Versions.androidXTestVersion}")
+    androidTestImplementation ("androidx.test:rules:${Versions.androidXTestVersion}")
+    androidTestImplementation("io.mockk:mockk-android:${Versions.mock}")
+    debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:${Versions.compose}")
+
 }
