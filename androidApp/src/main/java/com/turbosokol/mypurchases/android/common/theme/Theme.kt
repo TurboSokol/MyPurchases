@@ -1,4 +1,4 @@
-package com.turbosokol.mypurchases.android.ui.theme
+package com.turbosokol.mypurchases.android.common.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme

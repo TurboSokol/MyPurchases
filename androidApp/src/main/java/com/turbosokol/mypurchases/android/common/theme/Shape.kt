@@ -1,4 +1,4 @@
-package com.turbosokol.mypurchases.android.ui.theme
+package com.turbosokol.mypurchases.android.common.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

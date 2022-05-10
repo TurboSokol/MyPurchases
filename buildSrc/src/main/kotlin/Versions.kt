@@ -15,11 +15,8 @@ object Versions {
         const val kodein = "0.9.0-beta"
         const val russhwolf = "0.8.1"
 
-        const val jUnit = "4.13.2"
-        const val lottie = "5.0.1"
-
-
         const val test = "1.4.0"
         const val accompanist = "0.20.3"
         const val androidXTestVersion = "1.4.0"
+        const val mock = "1.12.2"
 }
