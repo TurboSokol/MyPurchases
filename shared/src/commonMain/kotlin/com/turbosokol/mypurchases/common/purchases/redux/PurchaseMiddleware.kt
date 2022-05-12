@@ -1,20 +1,44 @@
 package com.turbosokol.mypurchases.common.purchases.redux
 
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.purchases.model.PurchaseModel
 import com.turbosokol.mypurchases.core.redux.Action
 import com.turbosokol.mypurchases.core.redux.Effect
 import com.turbosokol.mypurchases.core.redux.Middleware
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.turbosokol.mypurchases.core.repository.local.MyPurchaseDAO
+import comturbosokolmypurchases.PurchaseDb
+import kotlinx.coroutines.flow.*
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class PurchaseMiddleware(): Middleware<AppState> {
+class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<AppState> {
     override suspend fun process(
         state: AppState,
         action: Action,
         sideEffect: MutableSharedFlow<Effect>
     ): Flow<Action> {
-        return super.process(state, action, sideEffect)
+        return when (action) {
+            is PurchaseAction.AddPurchase -> flow {
+                myPurchaseDAO.insertPurchase(
+                    id = action.purchaseId,
+                    parent = action.parentListId,
+                    coast = action.coast,
+                    title = action.description
+                )
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
+            is PurchaseAction.GetAllPurchases -> flow {
+               val data = myPurchaseDAO.getAllPurchases()
+                emit(PurchaseAction.SetPurchases(data))
+            }
+
+            is PurchaseAction.GetPurchase -> flow {
+                val data = myPurchaseDAO.getPurchaseById(action.purchaseId) ?: PurchaseDb(id = 0, title = "error", coast = 0, parent = 0)
+                emit(PurchaseAction.SetEditablePurchase(data))
+            }
+
+            else -> emptyFlow()
+        }
     }
 }
