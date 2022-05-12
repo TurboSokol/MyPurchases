@@ -37,8 +37,8 @@ val storeModule = module {
             defaultValue = AppState(get()),
             listOf(
                 AppMiddleware(),
-                ListsMiddleware(),
-                PurchaseMiddleware()
+                ListsMiddleware(get()),
+                PurchaseMiddleware(get())
             )
         )
     }

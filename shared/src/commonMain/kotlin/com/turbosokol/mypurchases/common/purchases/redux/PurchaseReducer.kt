@@ -6,20 +6,12 @@ import com.turbosokol.mypurchases.core.redux.Reducer
 class PurchaseReducer : Reducer<PurchaseState> {
     override fun reduce(oldState: PurchaseState, action: Action): PurchaseState {
         return when (action) {
-            is PurchaseAction.AddPurchase -> {
-                oldState.copy(
-                    progress = false,
-                    purchaseId = action.purchaseId,
-                    parentListId = action.parentListId,
-                    coast = action.coast,
-                    description = action.description
-                )
+            is PurchaseAction.SetEditablePurchase -> {
+                oldState.copy(editablePurchase = action.editablePurchase)
             }
-            is PurchaseAction.EditPurchase -> {
-                oldState.copy(
-                    purchaseId = action.purchaseId,
-                    parentListId = action.parentListId
-                )
+
+            is PurchaseAction.SetPurchases -> {
+                oldState.copy(purchaseItems = action.purchaseItems)
             }
             else -> oldState
         }

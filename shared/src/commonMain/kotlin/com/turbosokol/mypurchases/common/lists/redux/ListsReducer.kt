@@ -6,21 +6,14 @@ import com.turbosokol.mypurchases.core.redux.Reducer
 class ListsReducer: Reducer<ListsState> {
     override fun reduce(oldState: ListsState, action: Action): ListsState {
         return when (action) {
-            is ListsAction.GetLists -> {
-                if (oldState.progress) {
-                    oldState
-                } else {
-                    oldState.copy(progress = action.progress)
-                }
-            }
+
             is ListsAction.SetLists -> {
-                oldState.copy(progress = false, listItems = action.listItems, listsFetched = true)
+                oldState.copy(progress = false, listItems = action.listItems)
             }
 
-            is ListsAction.ExpandCurrentList -> {
-                oldState.copy(progress = false, expandedList = action.listItem)
+            is ListsAction.SetExpandableList -> {
+                oldState.copy(progress = false, expandableList = action.expandableList)
             }
-
             else -> oldState
         }
     }
