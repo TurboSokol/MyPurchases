@@ -8,7 +8,6 @@ import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
 data class AppState(
-    val platform: AppPlatform = AppPlatform.NOT_SET,
     internal val listsState: ListsState = ListsState.getDefault(),
     internal val purchaseState: PurchaseState = PurchaseState.getDefault()
 ) : GeneralState {
@@ -16,8 +15,4 @@ data class AppState(
     fun getPurchaseState() = purchaseState
 }
 
-sealed class AppAction : Action {
-    data class SetPlatform(val platform: AppPlatform) : AppAction()
-}
 
-enum class AppPlatform { ANDROID, IOS, NOT_SET }

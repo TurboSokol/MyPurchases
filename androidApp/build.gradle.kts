@@ -58,6 +58,18 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:${Versions.constraint_layout}")
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraint_layout_compose}")
 
+    //ACCOMPANIST
+    implementation("com.google.accompanist:accompanist-pager:0.20.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.20.0")
+    implementation("com.google.accompanist:accompanist-insets:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-insets-ui:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-permissions:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-swiperefresh:${Versions.accompanist}")
+
+    //IMAGES
+    implementation("io.coil-kt:coil-compose:2.0.0")
+
     //Navigation
     implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.21.4-beta")

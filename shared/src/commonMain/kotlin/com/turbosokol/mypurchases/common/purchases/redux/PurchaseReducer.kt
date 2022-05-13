@@ -13,6 +13,11 @@ class PurchaseReducer : Reducer<PurchaseState> {
             is PurchaseAction.SetPurchases -> {
                 oldState.copy(purchaseItems = action.purchaseItems)
             }
+
+            is PurchaseAction.ShowingAddContent -> {
+                oldState.copy(showAddContent = action.showAddContent)
+            }
+
             else -> oldState
         }
     }

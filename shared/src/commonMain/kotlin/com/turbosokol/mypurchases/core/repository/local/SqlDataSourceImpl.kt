@@ -1,5 +1,6 @@
 package com.turbosokol.mypurchases.core.repository.local
 
+import com.squareup.sqldelight.db.SqlDriver
 import com.turbosokol.mypurchases.SqlDatabase
 import com.turbosokol.mypurchases.common.lists.model.ListModel
 import com.turbosokol.mypurchases.common.purchases.model.PurchaseModel
@@ -11,8 +12,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
-class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
-    private val queries = db.tablesQueries
+class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
+    private val dataBase = SqlDatabase(sqlDriver)
+    private val queries = dataBase.tablesQueries
 
     override suspend fun getAllLists(): ListModel {
         return queries.getListsAll().executeAsList() as ListModel
@@ -37,8 +39,8 @@ class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
         return withContext(appDispatcher) { queries.deleteList(id) }
     }
 
-    override suspend fun getAllPurchases(): PurchaseModel {
-        return  queries.getPurchaseAll().executeAsList() as PurchaseModel
+    override suspend fun getAllPurchases(): List<PurchaseDb> {
+        return  queries.getPurchaseAll().executeAsList()
     }
 
     override suspend fun getPurchaseById(id: Long): PurchaseDb? {

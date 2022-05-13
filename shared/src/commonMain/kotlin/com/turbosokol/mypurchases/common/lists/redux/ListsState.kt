@@ -14,6 +14,10 @@ data class ListsState(
     val listItems: ListModel,
     val expandableList: ListsDb
 ) : GeneralState {
+
+//    fun getAllLists(): ListModel = listItems
+//    fun getExpandableList(): ListsDb = ListsState.
+
     companion object {
         fun getDefault(): ListsState {
             return ListsState(

@@ -11,7 +11,7 @@ interface MyPurchaseDAO {
     suspend fun insertList(id: Long? = null, title: String, spentSum: Long, expectedSum: Long)
     suspend fun deleteList(id: Long)
 
-    suspend fun getAllPurchases(): PurchaseModel
+    suspend fun getAllPurchases(): List<PurchaseDb>
     suspend fun getPurchaseById(id: Long): PurchaseDb?
     suspend fun insertPurchase(id: Long? = null, parent: Long, coast: Long, title: String? = null)
     suspend fun deletePurchase(id: Long)
