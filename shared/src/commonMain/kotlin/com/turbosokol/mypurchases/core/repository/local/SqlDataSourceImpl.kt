@@ -16,8 +16,8 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
     private val dataBase = SqlDatabase(sqlDriver)
     private val queries = dataBase.tablesQueries
 
-    override suspend fun getAllLists(): ListModel {
-        return queries.getListsAll().executeAsList() as ListModel
+    override suspend fun getAllLists(): List<ListsDb> {
+        return queries.getListsAll().executeAsList()
     }
 
     override suspend fun getListById(id: Long): ListsDb? {
@@ -41,6 +41,10 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
 
     override suspend fun getAllPurchases(): List<PurchaseDb> {
         return  queries.getPurchaseAll().executeAsList()
+    }
+
+    override suspend fun getAllPurchasesByParent(parentId: Long): List<PurchaseDb> {
+        return queries.getAllPurchasesByParent(parentId).executeAsList()
     }
 
     override suspend fun getPurchaseById(id: Long): PurchaseDb? {

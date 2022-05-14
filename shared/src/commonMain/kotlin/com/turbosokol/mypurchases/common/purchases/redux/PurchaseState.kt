@@ -36,6 +36,7 @@ data class PurchaseState(
 sealed class PurchaseAction: Action {
     data class AddPurchase(val purchaseId: Long, val parentListId: Long, val coast: Long, val description: String? = null): PurchaseAction()
     object GetAllPurchases: PurchaseAction()
+    data class GetAllPurchasesByParent(val parentId: Long): PurchaseAction()
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
     data class GetPurchase(val purchaseId: Long): PurchaseAction()
     data class SetEditablePurchase(val editablePurchase: PurchaseDb): PurchaseAction()

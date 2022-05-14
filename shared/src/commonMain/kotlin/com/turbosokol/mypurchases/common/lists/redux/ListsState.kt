@@ -11,7 +11,7 @@ data class ListsState(
     val title: String,
     val spentSum: Long,
     val expectedSum: Long,
-    val listItems: ListModel,
+    val listItems: List<ListsDb>,
     val expandableList: ListsDb
 ) : GeneralState {
 
@@ -26,7 +26,7 @@ data class ListsState(
                 title = "",
                 spentSum = 0,
                 expectedSum = 0,
-                listItems = ListModel(emptyList()),
+                listItems = emptyList(),
                 expandableList = ListsDb(id = 0, title = "", spentSum = 0, expectedSum = 0)
             )
         }
@@ -36,7 +36,7 @@ data class ListsState(
 sealed class ListsAction : Action {
     data class AddLists(val listId: Long, val title: String, val spentSum: Long, val expectedSum: Long): ListsAction()
     object GetAllLists : ListsAction()
-    data class SetLists(val listItems: ListModel) : ListsAction()
+    data class SetLists(val listItems: List<ListsDb>) : ListsAction()
     data class GetList(val listId: Long) : ListsAction()
     data class SetExpandableList(val expandableList: ListsDb): ListsAction()
 

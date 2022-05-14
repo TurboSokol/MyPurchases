@@ -19,6 +19,7 @@ import com.google.accompanist.insets.ui.Scaffold
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.lists.redux.ListsAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.Dispatchers
@@ -43,13 +44,16 @@ fun ListsPage(
     val listsState = state.getListsState()
     val purchaseState = state.getPurchaseState()
 
+    viewModel.execute(ListsAction.GetAllLists)
+
     val scrollState = rememberLazyListState()
-    val listItems = listsState.listItems.listsList
+    val listItems = listsState.listItems
 
     val coroutineScope = rememberCoroutineScope()
     val showAddSContent =  purchaseState.showAddContent
-    val bottomSheetState =
-        rememberBottomSheetScaffoldState(bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed))
+    val bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
 
     if (showAddSContent) {
         coroutineScope.launch {
@@ -63,12 +67,13 @@ fun ListsPage(
 
     BottomSheetScaffold(
         sheetContent = { AddPurchaseContent() },
-        scaffoldState = bottomSheetState
+        scaffoldState = bottomSheetState,
+        sheetPeekHeight = 0.dp
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column() {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Top,
+                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -90,17 +95,11 @@ fun ListsPage(
                 }
 
                 Row(verticalAlignment = Bottom) {
-                    if (showAddSContent) {
-                        AddPurchaseBottomSheet()
-                    } else {
+//                    if (!showAddSContent) {
                         AddButtonSticky()
-                    }
+//                    }
                 }
-
             }
-
-
         }
-
     }
 }

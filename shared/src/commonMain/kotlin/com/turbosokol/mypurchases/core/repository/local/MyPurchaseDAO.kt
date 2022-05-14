@@ -6,12 +6,13 @@ import comturbosokolmypurchases.ListsDb
 import comturbosokolmypurchases.PurchaseDb
 
 interface MyPurchaseDAO {
-    suspend fun getAllLists(): ListModel
+    suspend fun getAllLists(): List<ListsDb>
     suspend fun getListById(id: Long): ListsDb?
     suspend fun insertList(id: Long? = null, title: String, spentSum: Long, expectedSum: Long)
     suspend fun deleteList(id: Long)
 
     suspend fun getAllPurchases(): List<PurchaseDb>
+    suspend fun getAllPurchasesByParent(parentId: Long): List<PurchaseDb>
     suspend fun getPurchaseById(id: Long): PurchaseDb?
     suspend fun insertPurchase(id: Long? = null, parent: Long, coast: Long, title: String? = null)
     suspend fun deletePurchase(id: Long)

@@ -1,6 +1,7 @@
 package com.turbosokol.mypurchases.android.common.components
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,37 +9,21 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
-import com.turbosokol.mypurchases.android.core.Service
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
-@ExperimentalMaterialApi
-@ExperimentalTime
-@Composable
-fun AddPurchaseBottomSheet() {
-
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
-
-    BottomSheetScaffold(
-        scaffoldState = bottomSheetScaffoldState,
-        sheetContent = { AddPurchaseContent() },
-        sheetElevation = 2.dp,
-        sheetPeekHeight = 16.dp
-    ) {
-
-    }
-
-
-}
 
 @ExperimentalTime
 @Composable
@@ -48,14 +33,25 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
     val descriptionValue = remember { mutableStateOf("") }
     val listValue = remember { mutableStateOf("") }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.fillMaxHeight()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp), elevation = 8.dp, border = BorderStroke(1.dp, Color.Black)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .padding(horizontal = 32.dp)
+                    .padding(horizontal = 8.dp)
             ) {
-                Text(text = "List: ")
+                Text(
+                    modifier = Modifier
+                        .align(CenterVertically)
+                        .weight(0.4F),
+                    text = "List: ",
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center
+                )
                 TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = listValue.value,
@@ -64,10 +60,19 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
 
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 32.dp)
+                    .padding(horizontal = 8.dp)
                     .padding(top = 8.dp)
+                    .align(CenterHorizontally)
+
             ) {
-                Text(text = "Coast: ")
+                Text(
+                    modifier = Modifier
+                        .align(CenterVertically)
+                        .weight(0.4F),
+                    text = "Coast: ",
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center
+                )
                 TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = coastValue.value,
@@ -79,9 +84,16 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .padding(horizontal = 32.dp)
+                    .padding(horizontal = 8.dp)
             ) {
-                Text(text = "Description: ")
+                Text(
+                    modifier = Modifier
+                        .align(CenterVertically)
+                        .weight(0.4F),
+                    text = "Title: ",
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center
+                )
                 TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = descriptionValue.value,
@@ -97,8 +109,8 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
             ) {
                 Image(
                     modifier = Modifier.clickable {
-                        if (coastValue.value.isNullOrEmpty()) {
 
+                        if (coastValue.value.isNullOrEmpty()) {
                         } else {
                             viewModel.execute(
                                 PurchaseAction.AddPurchase(
@@ -108,6 +120,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                                     description = descriptionValue.value
                                 )
                             )
+                            TODO("CREATE LIST by Action")
                             viewModel.execute(PurchaseAction.ShowingAddContent(false))
                         }
                     },
