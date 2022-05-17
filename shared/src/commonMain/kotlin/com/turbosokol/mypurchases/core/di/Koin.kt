@@ -4,8 +4,8 @@ import com.turbosokol.mypurchases.common.app.AppMiddleware
 import com.turbosokol.mypurchases.common.app.AppReducer
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.app.RootReducer
-import com.turbosokol.mypurchases.common.lists.redux.ListsMiddleware
-import com.turbosokol.mypurchases.common.lists.redux.ListsReducer
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesMiddleware
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesReducer
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseMiddleware
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseReducer
 import com.turbosokol.mypurchases.core.redux.Action
@@ -30,20 +30,20 @@ val storeModule = module {
         ReduxStore(
             reducer = RootReducer(
                 appReducer = get(),
-                listsReducer = get(),
+                categoriesReducer = get(),
                 purchaseReducer = get()
             ),
             defaultValue = AppState(),
             listOf(
                 AppMiddleware(),
-                ListsMiddleware(get()),
+                CategoriesMiddleware(get()),
                 PurchaseMiddleware(get())
             )
         )
     }
 
     single { AppReducer() }
-    single { ListsReducer() }
+    single { CategoriesReducer() }
     single { PurchaseReducer() }
 }
 

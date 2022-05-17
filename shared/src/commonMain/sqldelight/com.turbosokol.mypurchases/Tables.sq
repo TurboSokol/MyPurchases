@@ -34,31 +34,32 @@ WHERE id = :id;
 
 
 
-CREATE TABLE listsDb (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
+CREATE TABLE categoriesDb (
+    title TEXT NOT NULL PRIMARY KEY,
     spentSum INTEGER NOT NULL,
     expectedSum INTEGER NOT NULL
 );
 
-getListsAll:
+getCategoriesAll:
 SELECT *
-FROM listsDb;
+FROM categoriesDb;
 
-getListsById:
+getCategoriesByTitle:
 SELECT *
-FROM listsDb
-WHERE id = :id;
+FROM categoriesDb
+WHERE title = :title;
 
-insertList:
+insertCategory:
 INSERT OR REPLACE
-INTO listsDb (
-    id,
+INTO categoriesDb (
     title,
     spentSum,
     expectedSum
-) VALUES (?, ?, ?,?);
+) VALUES ( ?, ?, ?);
 
-deleteList:
-DELETE FROM listsDb
-WHERE id = :id;
+deleteAllCategories:
+DELETE FROM categoriesDb;
+
+deleteListByTitle:
+DELETE FROM categoriesDb
+WHERE title = :title;

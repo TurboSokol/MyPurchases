@@ -40,5 +40,5 @@ sealed class PurchaseAction: Action {
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
     data class GetPurchase(val purchaseId: Long): PurchaseAction()
     data class SetEditablePurchase(val editablePurchase: PurchaseDb): PurchaseAction()
-    data class ShowingAddContent(val showAddContent: Boolean): PurchaseAction()
+    data class ShowingAddContent(val showAddContent: Boolean, val contentType: String): PurchaseAction()
 }

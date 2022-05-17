@@ -9,10 +9,10 @@ import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.turbosokol.mypurchases.android.common.pages.*
+import com.turbosokol.mypurchases.android.common.screens.*
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.lists.redux.ListsAction
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -26,26 +26,27 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
     val navController = rememberAnimatedNavController()
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
-    val listsState = state.getListsState()
-    val startDestination = LIST_PAGE_ROUTE
+    val categoriesState = state.getCategoriesState()
+    val startDestination = MAIN_SCREEN_ROTE
 
-    val listExpandedRoute = "$LIST_EXPANDED_VIEW_ROUTE?$LIST_ID={$LIST_ID}"
+    val categoryExpandedRoute = "$CATEGORIES_EXPANDED_VIEW_ROUTE?$CATEGORY_TITLE={$CATEGORY_TITLE}"
 
 
     AnimatedNavHost(navController = navController, startDestination = startDestination) {
-        composable(LIST_PAGE_ROUTE) {
-            ListsPage(navController = navController,
-                onItemClick = { listId ->
-                    viewModel.execute(ListsAction.GetList(listId))
-                    val expandableList = listsState.expandableList
-                    navController.navigate("$LIST_EXPANDED_VIEW_ROUTE?$listId=$it")
+        composable(MAIN_SCREEN_ROTE) {
+            MainScreen(navController = navController,
+                onItemClick = { categoryTitle ->
+                    viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
+                    val expandableList = categoriesState.expandableCategory
+                    navController.navigate("$CATEGORIES_EXPANDED_VIEW_ROUTE/$categoryTitle=$it")
                 })
         }
 
-        composable(LIST_EXPANDED_VIEW_ROUTE, arguments = listOf(
-            navArgument("listId") {defaultValue = ""}
+        composable(
+            CATEGORIES_EXPANDED_VIEW_ROUTE, arguments = listOf(
+            navArgument("title") {defaultValue = ""}
         )) { navBackstackEntry ->
-            ListExpandedPage(navController = navController, listId = navBackstackEntry.arguments?.getString("listId").orEmpty().toLong(), onItemClick = {
+            CategoryExpandedScreen(navController = navController, categoriesTitle = navBackstackEntry.arguments?.getString("title").orEmpty(), onItemClick = {
 
             })
         }

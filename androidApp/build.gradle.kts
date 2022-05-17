@@ -57,6 +57,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-util:${Versions.compose}")
     implementation("androidx.constraintlayout:constraintlayout:${Versions.constraint_layout}")
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraint_layout_compose}")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha11")
+    implementation("androidx.compose.material3:material3-window-size-class:1.0.0-alpha11")
+
 
     //ACCOMPANIST
     implementation("com.google.accompanist:accompanist-pager:0.20.0")

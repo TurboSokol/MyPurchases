@@ -1,26 +1,33 @@
 package com.turbosokol.mypurchases.android.common.components
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
+import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
@@ -28,6 +35,11 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 @Composable
 fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
+
+    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
+    val state by stateFlow.collectAsState(Dispatchers.Main)
+    val categoriesState = state.getCategoriesState()
+    val allCategoriesInDb = categoriesState.categoriesItems
 
     val coastValue = remember { mutableStateOf("") }
     val descriptionValue = remember { mutableStateOf("") }
@@ -48,7 +60,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     modifier = Modifier
                         .align(CenterVertically)
                         .weight(0.4F),
-                    text = "List: ",
+                    text = "List Title: ",
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
@@ -76,6 +88,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                 TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = coastValue.value,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChange = {
                         coastValue.value = it
                     })
@@ -104,7 +117,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
 
             Row(
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 32.dp)
                     .align(CenterHorizontally)
             ) {
                 Image(
@@ -120,11 +133,17 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                                     description = descriptionValue.value
                                 )
                             )
-                            TODO("CREATE LIST by Action")
-                            viewModel.execute(PurchaseAction.ShowingAddContent(false))
+                            viewModel.execute(
+                                CategoriesAction.AddCategories(
+                                    title = listValue.value,
+                                    spentSum = coastValue.value.toLong(),
+                                    expectedSum = coastValue.value.toLong()
+                                )
+                            )
+                            viewModel.execute(PurchaseAction.ShowingAddContent(false, ""))
                         }
                     },
-                    painter = painterResource(id = R.drawable.ic_add_circle),
+                    painter = painterResource(id = R.drawable.ic_add),
                     contentDescription = null
                 )
             }

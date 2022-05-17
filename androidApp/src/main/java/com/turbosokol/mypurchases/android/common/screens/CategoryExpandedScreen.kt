@@ -1,6 +1,5 @@
-package com.turbosokol.mypurchases.android.common.pages
+package com.turbosokol.mypurchases.android.common.screens
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,32 +17,32 @@ import com.google.accompanist.insets.ui.Scaffold
 import com.turbosokol.mypurchases.android.common.components.PurchaseColumnItem
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.lists.redux.ListsAction
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
-const val LIST_EXPANDED_VIEW_ROUTE = "List expanded view route"
-const val LIST_ID = "list id"
+const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
+const val CATEGORY_TITLE = "Category title"
 
 @ExperimentalTime
 @Composable
-fun ListExpandedPage(
+fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    listId: Long,
+    categoriesTitle: String,
     onItemClick: () -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
-    val listsState = state.getListsState()
+    val categoriesState = state.getCategoriesState()
     val purchaseState = state.getPurchaseState()
 
-    viewModel.execute(ListsAction.GetList(listId))
+    viewModel.execute(CategoriesAction.GetCategory(categoriesTitle))
 
     val scrollState = rememberLazyListState()
-    val expandableList = listsState.expandableList
+    val expandableList = categoriesState.expandableCategory
     val currentPurchasesList = purchaseState.purchaseItems
 
     Scaffold() {

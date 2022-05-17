@@ -11,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ListColumnItem(title: String, spentSum: Long, expectedSum: Long, onItemClick:(Long) -> Unit) {
-    Card() {
+fun CategoriesColumnItem(title: String, spentSum: Long, expectedSum: Long, onItemClick:(String) -> Unit) {
+    Card(modifier =Modifier.clickable {
+        onItemClick(title)
+    }) {
         Row(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
