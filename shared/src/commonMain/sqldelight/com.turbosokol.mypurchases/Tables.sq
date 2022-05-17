@@ -7,7 +7,8 @@ CREATE TABLE purchaseDb(
 
 getPurchaseAll:
 SELECT *
-FROM purchaseDb;
+FROM purchaseDb
+ORDER BY id DESC;
 
 getPurchaseById:
 SELECT *

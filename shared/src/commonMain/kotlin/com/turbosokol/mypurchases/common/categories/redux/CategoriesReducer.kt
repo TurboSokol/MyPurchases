@@ -8,7 +8,7 @@ class CategoriesReducer: Reducer<CategoriesState> {
         return when (action) {
 
             is CategoriesAction.SetCategories -> {
-                oldState.copy(progress = false, categoriesItems = action.categoriesItems)
+                oldState.copy(progress = false, categoryItems = action.categoriesItems)
             }
 
             is CategoriesAction.SetExpandableCategory -> {

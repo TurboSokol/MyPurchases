@@ -9,7 +9,7 @@ data class CategoriesState(
     val title: String,
     val spentSum: Long,
     val expectedSum: Long,
-    val categoriesItems: List<CategoriesDb>,
+    val categoryItems: List<CategoriesDb>,
     val expandableCategory: CategoriesDb
 ) : GeneralState {
 
@@ -20,7 +20,7 @@ data class CategoriesState(
                 title = "",
                 spentSum = 0,
                 expectedSum = 0,
-                categoriesItems = emptyList(),
+                categoryItems = emptyList(),
                 expandableCategory = CategoriesDb(title = "", spentSum = 0, expectedSum = 0)
             )
         }

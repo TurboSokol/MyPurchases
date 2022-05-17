@@ -6,6 +6,7 @@ import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.app.RootReducer
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesMiddleware
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesReducer
+import com.turbosokol.mypurchases.common.navigation.redux.NavigationReducer
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseMiddleware
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseReducer
 import com.turbosokol.mypurchases.core.redux.Action
@@ -31,7 +32,8 @@ val storeModule = module {
             reducer = RootReducer(
                 appReducer = get(),
                 categoriesReducer = get(),
-                purchaseReducer = get()
+                purchaseReducer = get(),
+                navigationReducer = get()
             ),
             defaultValue = AppState(),
             listOf(
@@ -45,6 +47,7 @@ val storeModule = module {
     single { AppReducer() }
     single { CategoriesReducer() }
     single { PurchaseReducer() }
+    single { NavigationReducer() }
 }
 
 val repositoryModule = module {

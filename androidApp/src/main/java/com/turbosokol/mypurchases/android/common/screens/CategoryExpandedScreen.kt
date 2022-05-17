@@ -32,7 +32,7 @@ fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
     categoriesTitle: String,
-    onItemClick: () -> Unit
+    onPurchaseClick: (Long) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -52,7 +52,7 @@ fun CategoryExpandedScreen(
             }
             LazyColumn(state = scrollState) {
                 itemsIndexed(currentPurchasesList) { index, item ->
-                    PurchaseColumnItem(coast = item.coast, title = item.title)
+                    PurchaseColumnItem(coast = item.coast, title = item.title, onPurchaseClick = onPurchaseClick)
                 }
 
             }

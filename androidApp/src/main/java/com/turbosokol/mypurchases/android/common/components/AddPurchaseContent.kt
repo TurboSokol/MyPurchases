@@ -25,6 +25,7 @@ import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
+import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +40,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
-    val allCategoriesInDb = categoriesState.categoriesItems
+    val allCategoriesInDb = categoriesState.categoryItems
 
     val coastValue = remember { mutableStateOf("") }
     val descriptionValue = remember { mutableStateOf("") }
@@ -140,7 +141,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                                     expectedSum = coastValue.value.toLong()
                                 )
                             )
-                            viewModel.execute(PurchaseAction.ShowingAddContent(false, ""))
+                            viewModel.execute(NavigationAction.HideAddContent())
                         }
                     },
                     painter = painterResource(id = R.drawable.ic_add),

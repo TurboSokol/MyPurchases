@@ -35,18 +35,21 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
     AnimatedNavHost(navController = navController, startDestination = startDestination) {
         composable(MAIN_SCREEN_ROTE) {
             MainScreen(navController = navController,
-                onItemClick = { categoryTitle ->
+                onCategoryClick = { categoryTitle ->
                     viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
                     val expandableList = categoriesState.expandableCategory
                     navController.navigate("$CATEGORIES_EXPANDED_VIEW_ROUTE/$categoryTitle=$it")
-                })
+                },
+            onPurchaseClick = { purchaseId ->
+
+            })
         }
 
         composable(
             CATEGORIES_EXPANDED_VIEW_ROUTE, arguments = listOf(
             navArgument("title") {defaultValue = ""}
         )) { navBackstackEntry ->
-            CategoryExpandedScreen(navController = navController, categoriesTitle = navBackstackEntry.arguments?.getString("title").orEmpty(), onItemClick = {
+            CategoryExpandedScreen(navController = navController, categoriesTitle = navBackstackEntry.arguments?.getString("title").orEmpty(), onPurchaseClick = {
 
             })
         }
