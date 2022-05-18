@@ -13,6 +13,7 @@ import com.turbosokol.mypurchases.android.common.screens.*
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
+import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -29,29 +30,24 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
     val categoriesState = state.getCategoriesState()
     val startDestination = MAIN_SCREEN_ROTE
 
-    val categoryExpandedRoute = "$CATEGORIES_EXPANDED_VIEW_ROUTE?$CATEGORY_TITLE={$CATEGORY_TITLE}"
-
-
     AnimatedNavHost(navController = navController, startDestination = startDestination) {
         composable(MAIN_SCREEN_ROTE) {
             MainScreen(navController = navController,
                 onCategoryClick = { categoryTitle ->
                     viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
-                    val expandableList = categoriesState.expandableCategory
-                    navController.navigate("$CATEGORIES_EXPANDED_VIEW_ROUTE/$categoryTitle=$it")
+                    navController.navigate(CATEGORIES_EXPANDED_VIEW_ROUTE)
                 },
-            onPurchaseClick = { purchaseId ->
-
-            })
+                onPurchaseClick = { purchaseId ->
+                    viewModel.execute(PurchaseAction.GetPurchase(purchaseId))
+                })
         }
 
-        composable(
-            CATEGORIES_EXPANDED_VIEW_ROUTE, arguments = listOf(
-            navArgument("title") {defaultValue = ""}
-        )) { navBackstackEntry ->
-            CategoryExpandedScreen(navController = navController, categoriesTitle = navBackstackEntry.arguments?.getString("title").orEmpty(), onPurchaseClick = {
+        composable(CATEGORIES_EXPANDED_VIEW_ROUTE) {
+            CategoryExpandedScreen(
+                navController = navController,
+                onPurchaseClick = {
 
-            })
+                })
         }
     }
 }

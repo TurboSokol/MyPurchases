@@ -41,16 +41,16 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return  queries.getPurchaseAll().executeAsList()
     }
 
-    override suspend fun getAllPurchasesByParent(parentId: Long): List<PurchaseDb> {
-        return queries.getAllPurchasesByParent(parentId).executeAsList()
+    override suspend fun getAllPurchasesByParent(parentTitle: String): List<PurchaseDb> {
+        return queries.getAllPurchasesByParent(parentTitle).executeAsList()
     }
 
     override suspend fun getPurchaseById(id: Long): PurchaseDb? {
         return withContext(appDispatcher) { queries.getPurchaseById(id).executeAsOneOrNull() }
     }
 
-    override suspend fun insertPurchase(id: Long?, parent: Long, coast: Long, title: String?) {
-        return withContext(appDispatcher) { queries.insertPurchase(id, parent, coast, title) }
+    override suspend fun insertPurchase(parentTitle: String, coast: Long, title: String?) {
+        return withContext(appDispatcher) { queries.insertPurchase(parentTitle, coast, title) }
     }
 
     override suspend fun deletePurchase(id: Long) {

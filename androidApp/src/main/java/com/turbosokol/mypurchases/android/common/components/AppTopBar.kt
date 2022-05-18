@@ -22,7 +22,7 @@ fun AppTopBar(
     onBackClick: () -> Unit,
     hasOptionsButton: Boolean,
     onOptionsClick: () -> Unit,
-    hasRightButton: Boolean = false,
+    hasRightButton: Boolean,
     onRightClick: () -> Unit,
     rightContentType: RightTopBarContentType? = null,
     topBarHideState: TopBarHideState = TopBarHideState.SHOWN

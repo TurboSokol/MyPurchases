@@ -1,16 +1,29 @@
 package com.turbosokol.mypurchases.android.common.theme
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+object AppTheme {
+    val appButtonElevation: Dp = 4.dp
+    val appLazyColumnItemElevation: Dp = 8.dp
+    val appBorderStroke: BorderStroke = BorderStroke(width = 0.4.dp, color = Color.LightGray)
+    val appPaddingMedium: Dp = 8.dp
+}
+
 
 private val DarkColorPalette = darkColors(
     primary = MyPrimary,
     primaryVariant = Purple700,
     secondary = Teal200
 )
+
 
 private val LightColorPalette = lightColors(
     primary = MyPrimary,
@@ -34,6 +47,8 @@ fun MyPurchasesTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compo
     } else {
         LightColorPalette
     }
+
+
 
     MaterialTheme(
         colors = colors,

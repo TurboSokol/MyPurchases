@@ -20,15 +20,14 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
         return when (action) {
             is PurchaseAction.AddPurchase -> flow {
                 myPurchaseDAO.insertPurchase(
-                    id = action.purchaseId,
-                    parent = action.parentListId,
+                    parentTitle = action.parentTitle,
                     coast = action.coast,
                     title = action.description
                 )
                 emit(PurchaseAction.GetAllPurchases)
             }
             is PurchaseAction.GetAllPurchasesByParent -> flow {
-                val data = myPurchaseDAO.getAllPurchasesByParent(action.parentId)
+                val data = myPurchaseDAO.getAllPurchasesByParent(action.parentTitle)
                 emit(PurchaseAction.SetPurchases(data))
             }
 
@@ -38,7 +37,7 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
             }
 
             is PurchaseAction.GetPurchase -> flow {
-                val data = myPurchaseDAO.getPurchaseById(action.purchaseId) ?: PurchaseDb(id = 0, title = "error", coast = 0, parent = 0)
+                val data = myPurchaseDAO.getPurchaseById(action.purchaseId) ?: PurchaseDb(id = 0, title = "error", coast = 0, parent = "")
                 emit(PurchaseAction.SetEditablePurchase(data))
             }
 

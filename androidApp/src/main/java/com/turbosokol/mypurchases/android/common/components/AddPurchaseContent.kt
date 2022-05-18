@@ -44,7 +44,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
 
     val coastValue = remember { mutableStateOf("") }
     val descriptionValue = remember { mutableStateOf("") }
-    val listValue = remember { mutableStateOf("") }
+    val listTitleValue = remember { mutableStateOf("") }
 
     Card(
         modifier = Modifier
@@ -67,8 +67,8 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                 )
                 TextField(
                     modifier = Modifier.padding(start = 8.dp),
-                    value = listValue.value,
-                    onValueChange = { listValue.value = it })
+                    value = listTitleValue.value,
+                    onValueChange = { listTitleValue.value = it })
             }
 
             Row(
@@ -125,18 +125,18 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     modifier = Modifier.clickable {
 
                         if (coastValue.value.isNullOrEmpty()) {
+//                            TODO("User warning")
                         } else {
                             viewModel.execute(
                                 PurchaseAction.AddPurchase(
-                                    purchaseId = 0,
-                                    parentListId = 0,
+                                    parentTitle = listTitleValue.value,
                                     coast = coastValue.value.toLong(),
                                     description = descriptionValue.value
                                 )
                             )
                             viewModel.execute(
                                 CategoriesAction.AddCategories(
-                                    title = listValue.value,
+                                    title = listTitleValue.value,
                                     spentSum = coastValue.value.toLong(),
                                     expectedSum = coastValue.value.toLong()
                                 )

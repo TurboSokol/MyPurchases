@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CategoriesColumnItem(title: String, spentSum: Long, expectedSum: Long, onItemClick:(String) -> Unit) {
-//    TODO()
+//    TODO("DESIGN")
     Card(modifier =Modifier.clickable {
         onItemClick(title)
     }) {

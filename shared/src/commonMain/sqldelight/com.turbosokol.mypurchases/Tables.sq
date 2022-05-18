@@ -1,6 +1,6 @@
 CREATE TABLE purchaseDb(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    parent INTEGER NOT NULL,
+    parent TEXT NOT NULL,
     coast INTEGER NOT NULL,
     title TEXT
 );
@@ -18,16 +18,15 @@ WHERE id = :id;
 getAllPurchasesByParent:
 SELECT *
 FROM purchaseDb
-WHERE parent = :parentId;
+WHERE parent = :parentTitle;
 
 insertPurchase:
 INSERT OR REPLACE
 INTO purchaseDb (
-    id,
     parent,
     coast,
     title
-) VALUES (?,?,?,?);
+) VALUES (?,?,?);
 
 deletePurchase:
 DELETE FROM purchaseDb
