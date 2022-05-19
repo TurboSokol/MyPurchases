@@ -20,7 +20,7 @@ data class PurchaseState(
             purchaseId = 0,
             coast = 0,
             description = null,
-            editablePurchase = PurchaseDb(id = 0, parent = "", coast = 0, title = "")
+            editablePurchase = PurchaseDb(id = 0L, parent = "", coast = 0, title = "")
         )
     }
 }
@@ -32,4 +32,7 @@ sealed class PurchaseAction: Action {
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
     data class GetPurchase(val purchaseId: Long): PurchaseAction()
     data class SetEditablePurchase(val editablePurchase: PurchaseDb): PurchaseAction()
+    data class DeletePurchaseById(val purchaseId: Long): PurchaseAction()
+    data class DeleteAllPurchasesByParent(val parentTitle: String): PurchaseAction()
+    object DeleteAllPurchases: PurchaseAction()
 }

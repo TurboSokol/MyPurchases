@@ -1,27 +1,33 @@
 package com.turbosokol.mypurchases.android.common.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
+import com.turbosokol.mypurchases.android.common.theme.AppTheme
+import com.turbosokol.mypurchases.android.common.theme.MyPrimary
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -33,6 +39,9 @@ import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
 
+@ExperimentalMaterial3Api
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
 @ExperimentalTime
 @Composable
 fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
@@ -40,35 +49,40 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
-    val allCategoriesInDb = categoriesState.categoryItems
+    val allCategories = categoriesState.categoryItems
 
     val coastValue = remember { mutableStateOf("") }
     val descriptionValue = remember { mutableStateOf("") }
     val listTitleValue = remember { mutableStateOf("") }
+    val keyboard = LocalSoftwareKeyboardController.current
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp), elevation = 8.dp, border = BorderStroke(1.dp, Color.Black)
+            .padding(4.dp), elevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.Bottom
             ) {
-                Text(
+
+
+                TextFieldWithHint(
                     modifier = Modifier
-                        .align(CenterVertically)
-                        .weight(0.4F),
-                    text = "List Title: ",
-                    style = MaterialTheme.typography.body1,
-                    textAlign = TextAlign.Center
-                )
-                TextField(
-                    modifier = Modifier.padding(start = 8.dp),
-                    value = listTitleValue.value,
-                    onValueChange = { listTitleValue.value = it })
+                        .padding(start = 8.dp),
+                    hintList = allCategories,
+                    hasTitle = true,
+                    titleText = stringResource(R.string.add_sheet_lists_title),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    onHintUsed = {
+                        keyboard?.hide()
+                    })
+                {
+                    listTitleValue.value = it
+                }
             }
 
             Row(
@@ -86,13 +100,17 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
-                TextField(
+                androidx.compose.material3.TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = coastValue.value,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     onValueChange = {
                         coastValue.value = it
-                    })
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
             }
 
             Row(
@@ -113,17 +131,20 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     value = descriptionValue.value,
                     onValueChange = {
                         descriptionValue.value = it
-                    })
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() })
+                )
             }
 
-            Row(
-                modifier = Modifier
-                    .padding(vertical = 32.dp)
-                    .align(CenterHorizontally)
-            ) {
-                Image(
-                    modifier = Modifier.clickable {
-
+                Button(
+                    modifier = Modifier
+                        .padding(vertical = 32.dp)
+                        .align(CenterHorizontally),
+                    border = AppTheme.appBorderStroke,
+                    elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
+                    colors = ButtonDefaults.buttonColors(MyPrimary),
+                    onClick = {
                         if (coastValue.value.isNullOrEmpty()) {
 //                            TODO("User warning")
                         } else {
@@ -143,11 +164,14 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                             )
                             viewModel.execute(NavigationAction.HideAddContent())
                         }
-                    },
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = null
-                )
+                    }
+                ) {
+                    Image(
+                        modifier = Modifier,
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = null
+                    )
+                }
             }
         }
     }
-}

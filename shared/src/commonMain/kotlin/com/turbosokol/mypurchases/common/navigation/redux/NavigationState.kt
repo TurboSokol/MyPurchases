@@ -19,7 +19,7 @@ data class NavigationState(
 }
 
 sealed class NavigationAction : Action {
-    data class ShowAddContent(val showAddContent: Boolean, val contentType: AddButtonContentType) : NavigationAction()
+    data class ShowAddContent(val contentType: AddButtonContentType) : NavigationAction()
     data class HideAddContent(val showAddContent: Boolean = false): NavigationAction()
     data class SwitchMainScreenLook(val mainScreenLookType: MainScreenLookType): NavigationAction()
 }

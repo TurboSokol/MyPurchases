@@ -21,7 +21,7 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
     ): Flow<Action> {
         return when (action) {
             is CategoriesAction.AddCategories -> flow {
-                myPurchaseDAO.insertList(
+                myPurchaseDAO.insertCategory(
                     title = action.title,
                     spentSum = action.spentSum,
                     expectedSum = action.expectedSum
@@ -35,7 +35,7 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
             }
 
             is CategoriesAction.GetCategory -> flow {
-                val data = myPurchaseDAO.getListByTitle(action.categoryTitle) ?: CategoriesDb(
+                val data = myPurchaseDAO.getCategoryByTitle(action.categoryTitle) ?: CategoriesDb(
                     title = "error",
                     spentSum = 0,
                     expectedSum = 0
@@ -49,7 +49,7 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
             }
 
             is CategoriesAction.DeleteListByTitle -> flow {
-                myPurchaseDAO.deleteListByTitle(action.listTitle)
+                myPurchaseDAO.deleteCategoryByTitle(action.listTitle)
                 emit(CategoriesAction.GetAllCategories)
             }
             else -> emptyFlow()

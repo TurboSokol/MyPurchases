@@ -28,9 +28,16 @@ INTO purchaseDb (
     title
 ) VALUES (?,?,?);
 
-deletePurchase:
+deletePurchaseById:
 DELETE FROM purchaseDb
 WHERE id = :id;
+
+deletePurchasesByParent:
+DELETE FROM purchaseDb
+WHERE parent = :parentTitle;
+
+deleteAllPurchases:
+DELETE FROM purchaseDb;
 
 
 
@@ -60,6 +67,6 @@ INTO categoriesDb (
 deleteAllCategories:
 DELETE FROM categoriesDb;
 
-deleteListByTitle:
+deleteCategoryByTitle:
 DELETE FROM categoriesDb
 WHERE title = :title;

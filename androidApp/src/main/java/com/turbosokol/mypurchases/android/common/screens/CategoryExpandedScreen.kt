@@ -7,11 +7,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -30,6 +32,8 @@ import kotlin.time.ExperimentalTime
 
 const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 
+@ExperimentalComposeUiApi
+@ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @ExperimentalTime
 @Composable

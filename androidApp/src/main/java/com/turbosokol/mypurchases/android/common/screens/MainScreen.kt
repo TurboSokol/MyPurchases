@@ -5,13 +5,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Bottom
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -33,6 +39,8 @@ import kotlin.time.ExperimentalTime
 
 const val MAIN_SCREEN_ROTE = "Main Screen"
 
+@ExperimentalMaterial3Api
+@ExperimentalComposeUiApi
 @SuppressLint("CoroutineCreationDuringComposition")
 @ExperimentalMaterialApi
 @ExperimentalTime
@@ -40,7 +48,6 @@ const val MAIN_SCREEN_ROTE = "Main Screen"
 fun MainScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    lookStyle: MainScreenLookType = MainScreenLookType.CATEGORIES,
     onCategoryClick: (String) -> Unit,
     onPurchaseClick: (Long) -> Unit
 ) {
@@ -75,11 +82,11 @@ fun MainScreen(
         }
     }
 
-    BottomSheetScaffold(
+    BottomSheetScaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             AppTopBar(
                 title = MAIN_SCREEN_ROTE,
-                onBackClick = {},
+                onBackClick = { navController.popBackStack() },
                 hasOptionsButton = true,
                 onOptionsClick = {
                     if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
@@ -89,7 +96,8 @@ fun MainScreen(
                     }
                 },
                 hasRightButton = true,
-                onRightClick = {})
+                rightContentType = RightTopBarContentType.DELETE,
+                onRightClick = { viewModel.execute(PurchaseAction.DeleteAllPurchases) })
         },
         sheetContent = {
             when (addButtonContentType) {
@@ -103,7 +111,36 @@ fun MainScreen(
 
         },
         scaffoldState = bottomSheetState,
-        sheetPeekHeight = 0.dp
+        sheetGesturesEnabled = true,
+        sheetPeekHeight = 0.dp,
+        sheetShape = RoundedCornerShape(8.dp),
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            if (bottomSheetState.bottomSheetState.isCollapsed) {
+                Row(
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp, bottom = 48.dp),
+                    verticalAlignment = Bottom,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    AddButton(
+                        contentType = AddButtonContentType.PURCHASE
+                    ) {
+                        coroutineScope.launch {
+                            bottomSheetState.bottomSheetState.expand()
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1F))
+                    AddButton(
+                        contentType = AddButtonContentType.CATEGORY
+                    ) {
+                        coroutineScope.launch {
+                            bottomSheetState.bottomSheetState.expand()
+                        }
+                    }
+                }
+            }
+        }
     ) {
 
         Column(
@@ -111,40 +148,38 @@ fun MainScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
-                MainScreenCategoryContent(categoryItems, onCategoryClick)
-            } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
-                MainScreenPurchaseContent(purchaseItems, onPurchaseClick)
-            }
-
-            Row(
-                modifier = Modifier
-                    .weight(1F)
-                    .padding(8.dp),
-                verticalAlignment = Bottom,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier,
+                verticalArrangement = Arrangement.Center
             ) {
-                AddButton(
-                    contentType = AddButtonContentType.PURCHASE
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                AddButton(
-                    contentType = AddButtonContentType.CATEGORY
-                )
+                if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
+                    MainScreenCategoryContent(categoryItems, onCategoryClick)
+                } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
+                    MainScreenPurchaseContent(purchaseItems, onPurchaseClick)
+                }
             }
+
+
         }
     }
 }
 
 @Composable
-fun MainScreenCategoryContent(categoryItems: List<CategoriesDb>, onCategoryClick: (String) -> Unit) {
-    val scrollState = rememberLazyListState()
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        if (categoryItems.isEmpty()) {
-            Text("Categories ARE EMPTY")
-        } else {
+fun MainScreenCategoryContent(
+    categoryItems: List<CategoriesDb>,
+    onCategoryClick: (String) -> Unit
+) {
+    if (categoryItems.isEmpty()) {
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        val scrollState = rememberLazyListState()
+        Row(verticalAlignment = Alignment.CenterVertically) {
             LazyColumn(state = scrollState) {
                 itemsIndexed(categoryItems) { index, item ->
                     CategoriesColumnItem(

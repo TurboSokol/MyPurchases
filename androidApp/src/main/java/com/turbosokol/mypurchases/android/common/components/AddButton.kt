@@ -26,7 +26,8 @@ import kotlin.time.ExperimentalTime
 fun AddButton(
     modifier: Modifier = Modifier,
     viewModel: ReduxViewModel = getViewModel(),
-    contentType: AddButtonContentType
+    contentType: AddButtonContentType,
+    onClick:() -> Unit
 ) {
     Box(modifier = modifier) {
         Column(
@@ -52,7 +53,8 @@ fun AddButton(
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 border = AppTheme.appBorderStroke,
                 onClick = {
-                    viewModel.execute(NavigationAction.ShowAddContent(true, contentType))
+                    viewModel.execute(NavigationAction.ShowAddContent(contentType))
+                    onClick()
                 }) {
                 Text(text = title, style = MaterialTheme.typography.subtitle2)
             }

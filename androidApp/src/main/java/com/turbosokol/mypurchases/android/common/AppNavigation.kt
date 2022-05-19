@@ -2,9 +2,11 @@ package com.turbosokol.mypurchases.android.common
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -19,6 +21,8 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
+@ExperimentalMaterial3Api
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalTime
@@ -30,16 +34,19 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
     val categoriesState = state.getCategoriesState()
     val startDestination = MAIN_SCREEN_ROTE
 
+
     AnimatedNavHost(navController = navController, startDestination = startDestination) {
         composable(MAIN_SCREEN_ROTE) {
-            MainScreen(navController = navController,
+            MainScreen(
+                navController = navController,
                 onCategoryClick = { categoryTitle ->
                     viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
                     navController.navigate(CATEGORIES_EXPANDED_VIEW_ROUTE)
                 },
                 onPurchaseClick = { purchaseId ->
                     viewModel.execute(PurchaseAction.GetPurchase(purchaseId))
-                })
+                }
+            )
         }
 
         composable(CATEGORIES_EXPANDED_VIEW_ROUTE) {

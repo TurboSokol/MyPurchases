@@ -41,6 +41,21 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
                 emit(PurchaseAction.SetEditablePurchase(data))
             }
 
+            is PurchaseAction.DeletePurchaseById -> flow {
+                myPurchaseDAO.deletePurchaseById(action.purchaseId)
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
+            is PurchaseAction.DeleteAllPurchasesByParent -> flow {
+                myPurchaseDAO.deleteAllPurchasesByParent(action.parentTitle)
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
+            is PurchaseAction.DeleteAllPurchases -> flow {
+                myPurchaseDAO.deleteAllPurchases()
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
             else -> emptyFlow()
         }
     }
