@@ -20,12 +20,15 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
         return when (action) {
             is PurchaseAction.AddPurchase -> flow {
                 myPurchaseDAO.insertPurchase(
-                    id = action.purchaseId,
-                    parent = action.parentListId,
+                    parentTitle = action.parentTitle,
                     coast = action.coast,
                     title = action.description
                 )
                 emit(PurchaseAction.GetAllPurchases)
+            }
+            is PurchaseAction.GetAllPurchasesByParent -> flow {
+                val data = myPurchaseDAO.getAllPurchasesByParent(action.parentTitle)
+                emit(PurchaseAction.SetPurchases(data))
             }
 
             is PurchaseAction.GetAllPurchases -> flow {
@@ -34,8 +37,23 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
             }
 
             is PurchaseAction.GetPurchase -> flow {
-                val data = myPurchaseDAO.getPurchaseById(action.purchaseId) ?: PurchaseDb(id = 0, title = "error", coast = 0, parent = 0)
+                val data = myPurchaseDAO.getPurchaseById(action.purchaseId) ?: PurchaseDb(id = 0, title = "error", coast = 0, parent = "")
                 emit(PurchaseAction.SetEditablePurchase(data))
+            }
+
+            is PurchaseAction.DeletePurchaseById -> flow {
+                myPurchaseDAO.deletePurchaseById(action.purchaseId)
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
+            is PurchaseAction.DeleteAllPurchasesByParent -> flow {
+                myPurchaseDAO.deleteAllPurchasesByParent(action.parentTitle)
+                emit(PurchaseAction.GetAllPurchases)
+            }
+
+            is PurchaseAction.DeleteAllPurchases -> flow {
+                myPurchaseDAO.deleteAllPurchases()
+                emit(PurchaseAction.GetAllPurchases)
             }
 
             else -> emptyFlow()

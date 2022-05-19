@@ -8,7 +8,7 @@ import com.turbosokol.mypurchases.core.redux.Store
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class ReduxViewModel constructor(
+class ReduxViewModel (
     val store: Store<AppState, Action, Effect>
 ): ViewModel() {
     fun execute(action: Action) {

@@ -1,31 +1,27 @@
 package com.turbosokol.mypurchases.core.repository.local
 
+import com.squareup.sqldelight.db.SqlDriver
 import com.turbosokol.mypurchases.SqlDatabase
-import com.turbosokol.mypurchases.common.lists.model.ListModel
-import com.turbosokol.mypurchases.common.purchases.model.PurchaseModel
 import com.turbosokol.mypurchases.utils.appDispatcher
-import comturbosokolmypurchases.ListsDb
+import comturbosokolmypurchases.CategoriesDb
 import comturbosokolmypurchases.PurchaseDb
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
-class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
-    private val queries = db.tablesQueries
+class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
+    private val dataBase = SqlDatabase(sqlDriver)
+    private val queries = dataBase.tablesQueries
 
-    override suspend fun getAllLists(): ListModel {
-        return queries.getListsAll().executeAsList() as ListModel
+    override suspend fun getAllCategories(): List<CategoriesDb> {
+        return queries.getCategoriesAll().executeAsList()
     }
 
-    override suspend fun getListById(id: Long): ListsDb? {
-        return withContext(appDispatcher) { queries.getListsById(id).executeAsOneOrNull() }
+    override suspend fun getCategoryByTitle(title: String): CategoriesDb? {
+        return withContext(appDispatcher) { queries.getCategoriesByTitle(title).executeAsOneOrNull() }
     }
 
-    override suspend fun insertList(id: Long?, title: String, spentSum: Long, expectedSum: Long) {
+    override suspend fun insertCategory(title: String, spentSum: Long, expectedSum: Long) {
         return withContext(appDispatcher) {
-            queries.insertList(
-                id,
+            queries.insertCategory(
                 title,
                 spentSum,
                 expectedSum
@@ -33,23 +29,41 @@ class SqlDataSourceImpl(db: SqlDatabase) : MyPurchaseDAO {
         }
     }
 
-    override suspend fun deleteList(id: Long) {
-        return withContext(appDispatcher) { queries.deleteList(id) }
+    override suspend fun deleteAllCategories() {
+        return withContext(appDispatcher) { queries.deleteAllCategories() }
     }
 
-    override suspend fun getAllPurchases(): PurchaseModel {
-        return  queries.getPurchaseAll().executeAsList() as PurchaseModel
+    override suspend fun deleteCategoryByTitle(title: String) {
+        return withContext(appDispatcher) {queries.deleteCategoryByTitle(title)}
+    }
+
+    override suspend fun getAllPurchases(): List<PurchaseDb> {
+        return  queries.getPurchaseAll().executeAsList()
+    }
+
+    override suspend fun getAllPurchasesByParent(parentTitle: String): List<PurchaseDb> {
+        return queries.getAllPurchasesByParent(parentTitle).executeAsList()
     }
 
     override suspend fun getPurchaseById(id: Long): PurchaseDb? {
         return withContext(appDispatcher) { queries.getPurchaseById(id).executeAsOneOrNull() }
     }
 
-    override suspend fun insertPurchase(id: Long?, parent: Long, coast: Long, title: String?) {
-        return withContext(appDispatcher) { queries.insertPurchase(id, parent, coast, title) }
+    override suspend fun insertPurchase(parentTitle: String, coast: Long, title: String?) {
+        return withContext(appDispatcher) { queries.insertPurchase(parentTitle, coast, title) }
     }
 
-    override suspend fun deletePurchase(id: Long) {
-        return withContext(appDispatcher) { queries.deletePurchase(id) }
+    override suspend fun deletePurchaseById(id: Long) {
+        return withContext(appDispatcher) { queries.deletePurchaseById(id) }
+    }
+
+    override suspend fun deleteAllPurchasesByParent(parentTitle: String) {
+        return withContext(appDispatcher) {
+           queries.getAllPurchasesByParent(parentTitle)
+        }
+    }
+
+    override suspend fun deleteAllPurchases() {
+        queries.deleteAllPurchases()
     }
 }
