@@ -96,7 +96,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     modifier = Modifier
                         .align(CenterVertically)
                         .weight(0.4F),
-                    text = "Coast: ",
+                    text = stringResource(R.string.add_coast_text),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
@@ -122,7 +122,7 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     modifier = Modifier
                         .align(CenterVertically)
                         .weight(0.4F),
-                    text = "Title: ",
+                    text = stringResource(R.string.add_title_text),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
