@@ -53,8 +53,8 @@ fun AddButton(
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 border = AppTheme.appBorderStroke,
                 onClick = {
-                    viewModel.execute(NavigationAction.ShowAddContent(contentType))
                     onClick()
+                    viewModel.execute(NavigationAction.ShowAddContent(contentType))
                 }) {
                 Text(text = title, style = MaterialTheme.typography.subtitle2)
             }

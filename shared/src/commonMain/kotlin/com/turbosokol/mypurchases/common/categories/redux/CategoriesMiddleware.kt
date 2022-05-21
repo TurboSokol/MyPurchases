@@ -35,12 +35,11 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
             }
 
             is CategoriesAction.GetCategory -> flow {
-                val data = myPurchaseDAO.getCategoryByTitle(action.categoryTitle) ?: CategoriesDb(
-                    title = "error",
-                    spentSum = 0,
-                    expectedSum = 0
-                )
-                emit(CategoriesAction.SetExpandableCategory(data))
+                val data = myPurchaseDAO.getCategoryByTitle(action.categoryTitle)
+                data?.let {
+                    emit(CategoriesAction.SetTargetCategory(it))
+                }
+
             }
 
             is CategoriesAction.DeleteAllCategories -> flow {
@@ -48,8 +47,8 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
                 emit(CategoriesAction.GetAllCategories)
             }
 
-            is CategoriesAction.DeleteListByTitle -> flow {
-                myPurchaseDAO.deleteCategoryByTitle(action.listTitle)
+            is CategoriesAction.DeleteCategoryByTitle -> flow {
+                myPurchaseDAO.deleteCategoryByTitle(action.categoryTitle)
                 emit(CategoriesAction.GetAllCategories)
             }
             else -> emptyFlow()

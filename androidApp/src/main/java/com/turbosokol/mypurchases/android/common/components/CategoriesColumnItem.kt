@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CategoriesColumnItem(title: String, spentSum: Long, expectedSum: Long, onItemClick:(String) -> Unit) {
+fun CategoriesColumnItem(title: String, spentSum: Double, expectedSum: Double?, onItemClick:(String) -> Unit) {
 //    TODO("DESIGN")
     Card(modifier =Modifier.clickable {
         onItemClick(title)

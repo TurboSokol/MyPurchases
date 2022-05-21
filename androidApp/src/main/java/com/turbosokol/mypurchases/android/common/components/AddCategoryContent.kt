@@ -1,5 +1,6 @@
 package com.turbosokol.mypurchases.android.common.components
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -43,7 +46,7 @@ import kotlin.time.ExperimentalTime
 @ExperimentalComposeUiApi
 @ExperimentalTime
 @Composable
-fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel()) {
+fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: SoftwareKeyboardController?) {
 
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -53,12 +56,12 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel()) {
     val titleValue = remember { mutableStateOf("") }
     val expectSumValue = remember { mutableStateOf("") }
 
-    val keyboard = LocalSoftwareKeyboardController.current
+    val localContext = LocalContext.current
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp), elevation = 8.dp
+            .padding(12.dp), elevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -98,7 +101,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel()) {
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .weight(0.4F),
-                    text = stringResource(R.string.add_excpect_sum_text),
+                    text = stringResource(R.string.add_expect_sum_text),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
@@ -118,20 +121,20 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel()) {
 
             Button(
                 modifier = Modifier
-                    .padding(vertical = 32.dp)
+                    .padding(vertical = 12.dp)
                     .align(Alignment.CenterHorizontally),
                 border = AppTheme.appBorderStroke,
                 elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 onClick = {
                     if (titleValue.value.isNullOrEmpty()) {
-//                            TODO("User warning")
+                        Toast.makeText(localContext, "Please enter Title", Toast.LENGTH_SHORT).show()
                     } else {
                         viewModel.execute(
                             CategoriesAction.AddCategories(
                                 title = titleValue.value,
-                                spentSum = 0L,
-                                expectedSum = expectSumValue.value.toLong()
+                                spentSum = 0.0,
+                                expectedSum = if (expectSumValue.value.isNotEmpty()) expectSumValue.value.toDouble() else null
                             )
                         )
                         viewModel.execute(NavigationAction.HideAddContent())

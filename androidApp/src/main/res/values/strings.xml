@@ -3,9 +3,9 @@
     <string name="new_purchase_button">NEW PURCHASE</string>
     <string name="new_category_button">NEW CATEGORY</string>
     <string name="purchase_column_item_coast_title">Coast: </string>
-    <string name="add_sheet_lists_title">List Title: </string>
+    <string name="add_category_text">Category: </string>
     <string name="app_name">My Purchases</string>
     <string name="add_title_text">"Title: "</string>
     <string name="add_coast_text">"Coast: "</string>
-    <string name="add_excpect_sum_text">"ExpectSum: "</string>
+    <string name="add_expect_sum_text">"Expect Sum: "</string>
 </resources>

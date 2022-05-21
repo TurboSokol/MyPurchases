@@ -20,7 +20,7 @@ import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 
 @Composable
-fun PurchaseColumnItem(coast: Long, title: String?, onPurchaseClick: (Long) -> Unit) {
+fun PurchaseColumnItem(coast: Double, title: String?, onPurchaseClick: (Long) -> Unit) {
     Card(
         modifier = Modifier.padding(AppTheme.appPaddingMedium),
         elevation = AppTheme.appLazyColumnItemElevation,
