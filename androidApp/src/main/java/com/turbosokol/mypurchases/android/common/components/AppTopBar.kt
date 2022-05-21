@@ -22,15 +22,20 @@ fun AppTopBar(
     onBackClick: () -> Unit,
     hasOptionsButton: Boolean,
     onOptionsClick: () -> Unit,
+    hasSubRightButton: Boolean,
+    subRightContentType: RightTopBarContentType? = RightTopBarContentType.EDIT,
+    onSubRightClick: () -> Unit,
     hasRightButton: Boolean,
     onRightClick: () -> Unit,
-    rightContentType: RightTopBarContentType? = null,
+    rightContentType: RightTopBarContentType? = RightTopBarContentType.DELETE,
     topBarHideState: TopBarHideState = TopBarHideState.SHOWN
 ) {
 
 
     TopAppBar() {
-        Row(modifier = Modifier.weight(1F).padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier
+            .weight(1F)
+            .padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             if (hasBackButton) {
                 AppTopBarBackButton() {
                     onBackClick()
@@ -46,6 +51,13 @@ fun AppTopBar(
                     onOptionsClick()
                 }
             }
+
+            if (hasSubRightButton) {
+                AppTopBarSubRightButton(subRightContentType = subRightContentType) {
+                    onSubRightClick()
+                }
+            }
+
             if (hasRightButton) {
                 AppTopBarRightButton(rightContentType = rightContentType) {
                     onRightClick()
@@ -74,9 +86,42 @@ fun AppTopBarBackButton(backButtonOnClick: () -> Unit) {
 }
 
 @Composable
+fun AppTopBarSubRightButton(
+    modifier:Modifier = Modifier.padding(end = 8.dp),
+    subRightContentType: RightTopBarContentType?,
+    onSubRightButtonClick: () -> Unit
+) {
+    val rightButtonIcon: Int = when (subRightContentType) {
+        RightTopBarContentType.DELETE -> {
+            R.drawable.ic_delete
+        }
+        RightTopBarContentType.ADD -> {
+            R.drawable.ic_add_circle
+        }
+        RightTopBarContentType.APP_INFO -> {
+            R.drawable.ic_info
+        }
+        RightTopBarContentType.EDIT -> {
+            R.drawable.ic_edit
+        }
+        else -> {
+            R.drawable.ic_info
+        }
+    }
+    Icon(
+        modifier = modifier.clickable {
+            onSubRightButtonClick()
+        },
+        painter = painterResource(id = rightButtonIcon),
+        contentDescription = null
+    )
+}
+
+@Composable
 fun AppTopBarRightButton(
+    modifier: Modifier = Modifier,
     rightContentType: RightTopBarContentType?,
-    rightButtonOnClick: () -> Unit
+    onRightClick: () -> Unit
 ) {
     val rightButtonIcon: Int = when (rightContentType) {
         RightTopBarContentType.DELETE -> {
@@ -93,8 +138,8 @@ fun AppTopBarRightButton(
         }
     }
     Icon(
-        modifier = Modifier.clickable {
-            rightButtonOnClick()
+        modifier = modifier.clickable {
+            onRightClick()
         },
         painter = painterResource(id = rightButtonIcon),
         contentDescription = null
@@ -102,7 +147,7 @@ fun AppTopBarRightButton(
 }
 
 enum class RightTopBarContentType {
-    DELETE, ADD, APP_INFO
+    DELETE, ADD, APP_INFO, EDIT
 }
 
 enum class TopBarHideState {

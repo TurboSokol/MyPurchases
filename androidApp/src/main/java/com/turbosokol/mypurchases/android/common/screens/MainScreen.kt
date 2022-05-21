@@ -32,9 +32,7 @@ import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
-import com.turbosokol.mypurchases.common.navigation.redux.AddButtonContentType
-import com.turbosokol.mypurchases.common.navigation.redux.MainScreenLookType
-import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
+import com.turbosokol.mypurchases.common.navigation.redux.*
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import comturbosokolmypurchases.CategoriesDb
 import comturbosokolmypurchases.PurchaseDb
@@ -73,6 +71,8 @@ fun MainScreen(
     val showAddSContent = navigationState.showAddContent
     val addButtonContentType = navigationState.addButtonType
     val mainScreenLookType = navigationState.mainScreenLookType
+    val purchasesStateType = navigationState.purchasesStateType
+    val categoriesStateType = navigationState.categoriesStateType
 
     val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
@@ -102,6 +102,22 @@ fun MainScreen(
                         viewModel.execute(NavigationAction.SwitchMainScreenLook(MainScreenLookType.PURCHASES))
                     } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
                         viewModel.execute(NavigationAction.SwitchMainScreenLook(MainScreenLookType.CATEGORIES))
+                    }
+                },
+                hasSubRightButton = true,
+                subRightContentType = RightTopBarContentType.EDIT,
+                onSubRightClick = {
+                    when (mainScreenLookType) {
+                        MainScreenLookType.PURCHASES -> {
+                            if (purchasesStateType == PurchasesStateType.DEFAULT) {
+                                viewModel.execute(NavigationAction.SwitchPurchaseStateType(PurchasesStateType.EDIT))
+                            } else { viewModel.execute(NavigationAction.SwitchPurchaseStateType(PurchasesStateType.DEFAULT)) }
+                        }
+                        MainScreenLookType.CATEGORIES -> {
+                            if (categoriesStateType == CategoriesStateType.DEFAULT) {
+                                viewModel.execute(NavigationAction.SwitchCategoriesStateType(CategoriesStateType.EDIT))
+                            } else { viewModel.execute(NavigationAction.SwitchCategoriesStateType(CategoriesStateType.DEFAULT)) }
+                        }
                     }
                 },
                 hasRightButton = true,
@@ -161,9 +177,9 @@ fun MainScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
-                    MainScreenCategoryContent(categoryItems, onCategoryClick)
+                    MainScreenCategoryContent(categoryItems, categoriesStateType, onCategoryClick)
                 } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
-                    MainScreenPurchaseContent(purchaseItems, onPurchaseClick)
+                    MainScreenPurchaseContent(purchaseItems, purchasesStateType, onPurchaseClick)
                 }
             }
 
@@ -175,6 +191,7 @@ fun MainScreen(
 @Composable
 fun MainScreenCategoryContent(
     categoryItems: List<CategoriesDb>,
+    categoriesStateType: CategoriesStateType,
     onCategoryClick: (String) -> Unit
 ) {
     Column(
@@ -212,7 +229,8 @@ fun MainScreenCategoryContent(
                         CategoriesColumnItem(
                             title = item.title,
                             spentSum = item.spentSum,
-                            expectedSum = item.expectedSum
+                            expectedSum = item.expectedSum,
+                            categoriesStateType
                         ) {
                             onCategoryClick(item.title)
                         }
@@ -224,7 +242,11 @@ fun MainScreenCategoryContent(
 }
 
 @Composable
-fun MainScreenPurchaseContent(purchaseItems: List<PurchaseDb>, onPurchaseClick: (Long) -> Unit) {
+fun MainScreenPurchaseContent(
+    purchaseItems: List<PurchaseDb>,
+    purchasesStateType: PurchasesStateType,
+    onPurchaseClick: (Long) -> Unit
+) {
     val scrollState = rememberLazyListState()
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -250,7 +272,8 @@ fun MainScreenPurchaseContent(purchaseItems: List<PurchaseDb>, onPurchaseClick: 
                     itemsIndexed(purchaseItems) { index, item ->
                         PurchaseColumnItem(
                             coast = item.coast,
-                            title = item.title
+                            title = item.description,
+                            purchaseStateType = purchasesStateType
                         ) {
                             onPurchaseClick(item.id)
                         }

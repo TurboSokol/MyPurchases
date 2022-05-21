@@ -38,6 +38,7 @@ import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
+import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
@@ -59,11 +60,16 @@ fun AddPurchaseContent(
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
+    val purchasesState = state.getPurchaseState()
+    val navigationState = state.getNavigationState()
     val allCategories = categoriesState.categoryItems
+    val editablePurchase = purchasesState.editablePurchase
+    val purchasesStateType = navigationState.purchasesStateType
 
-    val categoryTitleValue = remember { mutableStateOf("") }
-    val coastValue = remember { mutableStateOf("") }
-    val descriptionValue = remember { mutableStateOf("") }
+
+    val categoryTitleValue = remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.parent.toString() else "") }
+    val coastValue = remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.coast.toString() else "") }
+    val descriptionValue = remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.description.toString() else "") }
     val keyboard = LocalSoftwareKeyboardController.current
     val localContext = LocalContext.current
 
@@ -73,6 +79,8 @@ fun AddPurchaseContent(
             .padding(12.dp), elevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
+
+            // PARENT CATEGORY
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -84,6 +92,7 @@ fun AddPurchaseContent(
                 TextFieldWithHint(
                     modifier = Modifier
                         .padding(start = 8.dp),
+                    textFieldValue = categoryTitleValue.value,
                     hintList = allCategories,
                     hasTitle = true,
                     titleText = stringResource(R.string.add_category_text),
@@ -96,6 +105,7 @@ fun AddPurchaseContent(
                 }
             }
 
+            // COAST
             Row(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -125,6 +135,7 @@ fun AddPurchaseContent(
                 )
             }
 
+            // DESCRIPTION OF PURCHASE
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -157,54 +168,61 @@ fun AddPurchaseContent(
                 elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 onClick = {
-                    if (coastValue.value.isNullOrEmpty()) {
-                        Toast.makeText(localContext, "Please enter Coast", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        viewModel.execute(
-                            PurchaseAction.AddPurchase(
-                                parentTitle = categoryTitleValue.value,
-                                coast = coastValue.value.toDouble(),
-                                description = descriptionValue.value
-                            )
-                        )
+                    if (purchasesStateType != PurchasesStateType.EDIT) {
 
-                        var targetCategory: CategoriesDb? = null
-                        allCategories.forEach { category ->
-                            if (category.title == categoryTitleValue.value) {
-                                targetCategory = category
-                            }
-                        }
-                        targetCategory?.let {
-                            //when user didn't specify expect sum in category
-                            if (it.expectedSum == it.spentSum) {
-                                viewModel.execute(
-                                    CategoriesAction.AddCategories(
-                                        title = categoryTitleValue.value,
-                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
-                                        expectedSum = (coastValue.value.toDouble() + (it.expectedSum))
-                                    )
+                        if (coastValue.value.isNullOrEmpty()) {
+                            Toast.makeText(localContext, "Please enter Coast", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            viewModel.execute(
+                                PurchaseAction.AddPurchase(
+                                    parentTitle = categoryTitleValue.value,
+                                    coast = coastValue.value.toDouble(),
+                                    description = descriptionValue.value
                                 )
-                            } else {
-                                //if user specify expect sum - expect sum holds
-                                viewModel.execute(
-                                    CategoriesAction.AddCategories(
-                                        title = categoryTitleValue.value,
-                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
-                                        expectedSum = it.expectedSum
-                                    )
-                                )
-                            }
-                        }
-                    } ?: run {
-                        //if category with added title doesn't create yet
-                        viewModel.execute(
-                            CategoriesAction.AddCategories(
-                                title = categoryTitleValue.value,
-                                spentSum = coastValue.value.toDouble(),
-                                expectedSum = coastValue.value.toDouble()
                             )
-                        )
+
+                            var targetCategory: CategoriesDb? = null
+                            allCategories.forEach { category ->
+                                if (category.title == categoryTitleValue.value) {
+                                    targetCategory = category
+                                }
+                            }
+                            targetCategory?.let {
+                                //when user didn't specify expect sum in category
+                                if (it.expectedSum == it.spentSum) {
+                                    viewModel.execute(
+                                        CategoriesAction.AddCategories(
+                                            title = categoryTitleValue.value,
+                                            spentSum = (coastValue.value.toDouble() + it.spentSum),
+                                            expectedSum = (coastValue.value.toDouble() + (it.expectedSum))
+                                        )
+                                    )
+                                } else {
+                                    //if user specify expect sum - expect sum holds
+                                    viewModel.execute(
+                                        CategoriesAction.AddCategories(
+                                            title = categoryTitleValue.value,
+                                            spentSum = (coastValue.value.toDouble() + it.spentSum),
+                                            expectedSum = it.expectedSum
+                                        )
+                                    )
+                                }
+                            }
+                        } ?: run {
+                            //if category with added title doesn't create yet
+                            viewModel.execute(
+                                CategoriesAction.AddCategories(
+                                    title = categoryTitleValue.value,
+                                    spentSum = coastValue.value.toDouble(),
+                                    expectedSum = coastValue.value.toDouble()
+                                )
+                            )
+                        }
+                    } else
+                            {
+                        //if PurchasesStateType.EDIT enabled
+//                                viewModel.execute()
                     }
 
                     viewModel.execute(NavigationAction.HideAddContent())

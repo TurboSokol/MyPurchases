@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -21,9 +24,12 @@ import com.turbosokol.mypurchases.android.common.components.PurchaseColumnItem
 import com.turbosokol.mypurchases.android.common.components.RightTopBarContentType
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
+import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
@@ -43,12 +49,15 @@ fun CategoryExpandedScreen(
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
     val purchaseState = state.getPurchaseState()
+    val navigationState = state.getNavigationState()
 
 
     val scrollState = rememberLazyListState()
     val expandableList = categoriesState.targetCategory
     viewModel.execute(PurchaseAction.GetAllPurchasesByParent(expandableList.title))
+
     val currentPurchasesList = purchaseState.purchaseItems
+    val purchasesStateType = navigationState.purchasesStateType
 
     val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
@@ -62,10 +71,43 @@ fun CategoryExpandedScreen(
                 title = expandableList.title,
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = false,
-                onOptionsClick = { /*TODO("EditContent")*/ },
+                onOptionsClick = {},
+                hasSubRightButton = true,
+                subRightContentType = RightTopBarContentType.EDIT,
+                onSubRightClick = {
+                    when (purchasesStateType) {
+                        PurchasesStateType.DEFAULT -> {
+                            viewModel.execute(
+                                NavigationAction.SwitchPurchaseStateType(
+                                    PurchasesStateType.EDIT
+                                )
+                            )
+                        }
+                        else -> viewModel.execute(
+                            NavigationAction.SwitchPurchaseStateType(
+                                PurchasesStateType.DEFAULT
+                            )
+                        )
+                    }
+                },
                 hasRightButton = true,
                 rightContentType = RightTopBarContentType.DELETE,
-                onRightClick = { /*TODO*/ })
+                onRightClick = {
+                    when (purchasesStateType) {
+                        PurchasesStateType.DEFAULT -> {
+                            viewModel.execute(
+                                NavigationAction.SwitchPurchaseStateType(
+                                    PurchasesStateType.DELETE
+                                )
+                            )
+                        }
+                        else -> viewModel.execute(
+                            NavigationAction.SwitchPurchaseStateType(
+                                PurchasesStateType.DEFAULT
+                            )
+                        )
+                    }
+                })
 
         },
         sheetContent = {
@@ -83,8 +125,13 @@ fun CategoryExpandedScreen(
                 itemsIndexed(currentPurchasesList) { index, item ->
                     PurchaseColumnItem(
                         coast = item.coast,
-                        title = item.title,
-                        onPurchaseClick = onPurchaseClick
+                        title = item.description,
+                        purchaseStateType = PurchasesStateType.DEFAULT,
+                        onPurchaseClick = {
+                            when (purchasesStateType) { PurchasesStateType.DEFAULT -> { /*TODO("describe purchase?")*/ }
+                                PurchasesStateType.EDIT -> { coroutineScope.launch { bottomSheetState.bottomSheetState.expand() } }
+                            }
+                        }
                     )
                 }
 

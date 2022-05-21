@@ -9,9 +9,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.turbosokol.mypurchases.common.navigation.redux.CategoriesStateType
 
 @Composable
-fun CategoriesColumnItem(title: String, spentSum: Double, expectedSum: Double?, onItemClick:(String) -> Unit) {
+fun CategoriesColumnItem(title: String, spentSum: Double, expectedSum: Double?, categoriesStateType: CategoriesStateType, onItemClick:(String) -> Unit) {
 //    TODO("DESIGN")
     Card(modifier =Modifier.clickable {
         onItemClick(title)

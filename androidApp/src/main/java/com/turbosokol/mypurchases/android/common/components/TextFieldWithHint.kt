@@ -26,6 +26,7 @@ import comturbosokolmypurchases.CategoriesDb
 @Composable
 fun<T> TextFieldWithHint(
     modifier: Modifier = Modifier,
+    textFieldValue: String = "",
     hintList: List<T>,
     hasTitle: Boolean,
     titleText: String,
@@ -36,7 +37,7 @@ fun<T> TextFieldWithHint(
 ) {
 
     val textValue = remember {
-        mutableStateOf("")
+        mutableStateOf(textFieldValue)
     }
 
     val hintShowing = remember {
@@ -67,7 +68,7 @@ fun<T> TextFieldWithHint(
             }
 
             TextField(
-                value = textValue.value,
+                value = textValue.value.toString(),
                 onValueChange = {
                     textValue.value = it
                     onValueChanged(it)

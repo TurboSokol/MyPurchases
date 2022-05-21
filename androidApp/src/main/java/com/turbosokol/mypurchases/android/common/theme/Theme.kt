@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 object AppTheme {
     val appButtonElevation: Dp = 4.dp
     val appLazyColumnItemElevation: Dp = 8.dp
+    val appLazyColumnItemEditingElevation: Dp = 24.dp
     val appBorderStroke: BorderStroke = BorderStroke(width = 0.4.dp, color = Color.LightGray)
     val appPaddingMedium: Dp = 8.dp
 }

@@ -20,7 +20,7 @@ data class PurchaseState(
             purchaseId = 0.0,
             coast = 0.0,
             description = null,
-            editablePurchase = PurchaseDb(id = 0L, parent = "", coast = 0.0, title = "")
+            editablePurchase = PurchaseDb(id = 0L, parent = "", coast = 0.0, description = "")
         )
     }
 }

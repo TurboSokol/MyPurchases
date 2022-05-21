@@ -2,7 +2,7 @@ CREATE TABLE purchaseDb(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     parent TEXT NOT NULL,
     coast REAL NOT NULL,
-    title TEXT
+    description TEXT
 );
 
 getPurchaseAll:
@@ -21,12 +21,19 @@ FROM purchaseDb
 WHERE parent = :parentTitle;
 
 insertPurchase:
-INSERT OR REPLACE
-INTO purchaseDb (
+INSERT INTO purchaseDb (
     parent,
     coast,
-    title
+    description
 ) VALUES (?,?,?);
+
+editPurchase:
+REPLACE INTO purchaseDb (
+    id,
+    parent,
+    coast,
+    description
+) VALUES (?,?,?,?);
 
 deletePurchaseById:
 DELETE FROM purchaseDb
