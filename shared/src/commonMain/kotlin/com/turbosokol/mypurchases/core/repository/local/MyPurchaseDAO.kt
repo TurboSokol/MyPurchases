@@ -14,6 +14,7 @@ interface MyPurchaseDAO {
     suspend fun getAllPurchasesByParent(parentTitle: String): List<PurchaseDb>
     suspend fun getPurchaseById(id: Long): PurchaseDb?
     suspend fun insertPurchase(parentTitle: String, coast: Double, title: String? = null)
+    suspend fun editPurchase(id: Long, parentTitle: String, coast: Double, title: String? = null)
     suspend fun deletePurchaseById(id: Long)
     suspend fun deleteAllPurchasesByParent(parentTitle: String)
     suspend fun deleteAllPurchases()

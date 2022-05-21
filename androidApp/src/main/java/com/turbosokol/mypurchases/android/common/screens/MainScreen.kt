@@ -177,9 +177,42 @@ fun MainScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
-                    MainScreenCategoryContent(categoryItems, categoriesStateType, onCategoryClick)
+                    MainScreenCategoryContent(categoryItems, categoriesStateType,
+                        // IMPLEMENTED in navigation
+                        onCategoryClick = { title ->
+                            when (categoriesStateType) {
+                                CategoriesStateType.DEFAULT -> {
+                                    onCategoryClick
+                                }
+                                CategoriesStateType.EDIT -> {
+                                    viewModel.execute(CategoriesAction.GetCategory(title))
+                                    coroutineScope.launch {
+                                        bottomSheetState.bottomSheetState.expand()
+                                    }
+                                    viewModel.execute(NavigationAction.ShowAddContent(AddButtonContentType.CATEGORY))
+                                }
+                                CategoriesStateType.DELETE -> {
+                                    viewModel.execute(CategoriesAction.DeleteCategoryByTitle(title))
+                                }
+                            }
+                        })
                 } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
-                    MainScreenPurchaseContent(purchaseItems, purchasesStateType, onPurchaseClick)
+                    MainScreenPurchaseContent(purchaseItems, purchasesStateType,
+                        // IMPLEMENTED in navigation
+                        onPurchaseClick = { id ->
+                            when (purchasesStateType) {
+                                PurchasesStateType.DEFAULT -> {
+                                    onPurchaseClick
+                                }
+                                PurchasesStateType.EDIT -> {
+                                    viewModel.execute(PurchaseAction.GetPurchase(id))
+                                    viewModel.execute(NavigationAction.ShowAddContent(AddButtonContentType.PURCHASE))
+                                }
+                                PurchasesStateType.DELETE -> {
+                                    viewModel.execute(PurchaseAction.DeletePurchaseById(id))
+                                }
+                            }
+                        })
                 }
             }
 

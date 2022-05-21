@@ -21,14 +21,16 @@ FROM purchaseDb
 WHERE parent = :parentTitle;
 
 insertPurchase:
-INSERT INTO purchaseDb (
+INSERT OR REPLACE
+INTO purchaseDb (
     parent,
     coast,
     description
 ) VALUES (?,?,?);
 
 editPurchase:
-REPLACE INTO purchaseDb (
+INSERT OR REPLACE
+INTO purchaseDb (
     id,
     parent,
     coast,

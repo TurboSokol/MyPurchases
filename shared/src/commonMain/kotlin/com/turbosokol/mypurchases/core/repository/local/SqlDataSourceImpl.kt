@@ -49,6 +49,10 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return withContext(appDispatcher) { queries.insertPurchase(parentTitle, coast, title) }
     }
 
+    override suspend fun editPurchase(id: Long, parentTitle: String, coast: Double, title: String?) {
+        return withContext(appDispatcher) { queries.editPurchase(id, parentTitle, coast, title) }
+    }
+
     override suspend fun deletePurchaseById(id: Long) {
         return withContext(appDispatcher) { queries.deletePurchaseById(id) }
     }
