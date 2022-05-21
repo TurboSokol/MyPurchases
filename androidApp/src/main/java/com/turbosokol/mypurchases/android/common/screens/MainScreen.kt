@@ -1,6 +1,8 @@
 package com.turbosokol.mypurchases.android.common.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,9 +21,14 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.components.*
+import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -67,6 +74,7 @@ fun MainScreen(
     val addButtonContentType = navigationState.addButtonType
     val mainScreenLookType = navigationState.mainScreenLookType
 
+    val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
@@ -86,6 +94,7 @@ fun MainScreen(
         topBar = {
             AppTopBar(
                 title = MAIN_SCREEN_ROTE,
+                hasBackButton = false,
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = true,
                 onOptionsClick = {
@@ -102,13 +111,12 @@ fun MainScreen(
         sheetContent = {
             when (addButtonContentType) {
                 AddButtonContentType.PURCHASE -> {
-                    AddPurchaseContent()
+                    AddPurchaseContent(keyboard = keyboard)
                 }
                 AddButtonContentType.CATEGORY -> {
-                    AddCategoryContent()
+                    AddCategoryContent(keyboard = keyboard)
                 }
             }
-
         },
         scaffoldState = bottomSheetState,
         sheetGesturesEnabled = true,
@@ -169,25 +177,45 @@ fun MainScreenCategoryContent(
     categoryItems: List<CategoriesDb>,
     onCategoryClick: (String) -> Unit
 ) {
-    if (categoryItems.isEmpty()) {
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(
+                    start = AppTheme.appPaddingMedium,
+                    end = AppTheme.appPaddingMedium,
+                    top = AppTheme.appPaddingMedium
+                )
+                .border(AppTheme.appBorderStroke), verticalAlignment = CenterVertically
         ) {
-            CircularProgressIndicator()
+            Text(modifier = Modifier.weight(0.5F), textAlign = TextAlign.Start, text = "Title")
+            Text(modifier = Modifier.weight(0.25F), textAlign = TextAlign.Start, text = "Spent Sum")
+            Text(
+                modifier = Modifier.weight(0.25F),
+                textAlign = TextAlign.Start,
+                text = "Expect Sum"
+            )
         }
-    } else {
-        val scrollState = rememberLazyListState()
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            LazyColumn(state = scrollState) {
-                itemsIndexed(categoryItems) { index, item ->
-                    CategoriesColumnItem(
-                        title = item.title,
-                        spentSum = item.spentSum,
-                        expectedSum = item.expectedSum
-                    ) {
-                        onCategoryClick(item.title)
+
+        if (categoryItems.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            val scrollState = rememberLazyListState()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LazyColumn(state = scrollState) {
+                    itemsIndexed(categoryItems) { index, item ->
+                        CategoriesColumnItem(
+                            title = item.title,
+                            spentSum = item.spentSum,
+                            expectedSum = item.expectedSum
+                        ) {
+                            onCategoryClick(item.title)
+                        }
                     }
                 }
             }
@@ -198,24 +226,38 @@ fun MainScreenCategoryContent(
 @Composable
 fun MainScreenPurchaseContent(purchaseItems: List<PurchaseDb>, onPurchaseClick: (Long) -> Unit) {
     val scrollState = rememberLazyListState()
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .padding(
+                    start = AppTheme.appPaddingMedium,
+                    end = AppTheme.appPaddingMedium,
+                    top = AppTheme.appPaddingMedium
+                )
+                .border(AppTheme.appBorderStroke), verticalAlignment = CenterVertically
+        ) {
+            Text(modifier = Modifier.weight(0.4F), textAlign = TextAlign.Center, text = "Coast")
+            Text(modifier = Modifier.weight(0.6F), textAlign = TextAlign.Center, text = "Title")
+        }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        if (purchaseItems.isEmpty()) {
-            Text("Purchases ARE EMPTY")
-        } else {
-            LazyColumn(state = scrollState) {
-                itemsIndexed(purchaseItems) { index, item ->
-                    PurchaseColumnItem(
-                        coast = item.coast,
-                        title = item.title
-                    ) {
-                        onPurchaseClick(item.id)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (purchaseItems.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(state = scrollState) {
+                    itemsIndexed(purchaseItems) { index, item ->
+                        PurchaseColumnItem(
+                            coast = item.coast,
+                            title = item.title
+                        ) {
+                            onPurchaseClick(item.id)
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
 

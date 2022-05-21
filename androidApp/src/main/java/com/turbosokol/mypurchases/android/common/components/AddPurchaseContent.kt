@@ -1,5 +1,6 @@
 package com.turbosokol.mypurchases.android.common.components
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,14 +12,19 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -33,6 +39,7 @@ import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
+import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -44,22 +51,26 @@ import kotlin.time.ExperimentalTime
 @ExperimentalComposeUiApi
 @ExperimentalTime
 @Composable
-fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
+fun AddPurchaseContent(
+    viewModel: ReduxViewModel = getViewModel(),
+    keyboard: SoftwareKeyboardController?
+) {
 
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
     val allCategories = categoriesState.categoryItems
 
+    val categoryTitleValue = remember { mutableStateOf("") }
     val coastValue = remember { mutableStateOf("") }
     val descriptionValue = remember { mutableStateOf("") }
-    val listTitleValue = remember { mutableStateOf("") }
     val keyboard = LocalSoftwareKeyboardController.current
+    val localContext = LocalContext.current
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp), elevation = 8.dp
+            .padding(12.dp), elevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
@@ -75,13 +86,13 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                         .padding(start = 8.dp),
                     hintList = allCategories,
                     hasTitle = true,
-                    titleText = stringResource(R.string.add_sheet_lists_title),
+                    titleText = stringResource(R.string.add_category_text),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     onHintUsed = {
                         keyboard?.hide()
                     })
                 {
-                    listTitleValue.value = it
+                    categoryTitleValue.value = it
                 }
             }
 
@@ -100,11 +111,12 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
-                androidx.compose.material3.TextField(
+                TextField(
                     modifier = Modifier.padding(start = 8.dp),
                     value = coastValue.value,
-                    onValueChange = {
-                        coastValue.value = it
+                    onValueChange = { text ->
+                        val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
+                        coastValue.value = validateRegexPattern.find(text)?.value.toString()
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -137,41 +149,75 @@ fun AddPurchaseContent(viewModel: ReduxViewModel = getViewModel()) {
                 )
             }
 
-                Button(
-                    modifier = Modifier
-                        .padding(vertical = 32.dp)
-                        .align(CenterHorizontally),
-                    border = AppTheme.appBorderStroke,
-                    elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
-                    colors = ButtonDefaults.buttonColors(MyPrimary),
-                    onClick = {
-                        if (coastValue.value.isNullOrEmpty()) {
-//                            TODO("User warning")
-                        } else {
-                            viewModel.execute(
-                                PurchaseAction.AddPurchase(
-                                    parentTitle = listTitleValue.value,
-                                    coast = coastValue.value.toLong(),
-                                    description = descriptionValue.value
-                                )
+            Button(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .align(CenterHorizontally),
+                border = AppTheme.appBorderStroke,
+                elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
+                colors = ButtonDefaults.buttonColors(MyPrimary),
+                onClick = {
+                    if (coastValue.value.isNullOrEmpty()) {
+                        Toast.makeText(localContext, "Please enter Coast", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        viewModel.execute(
+                            PurchaseAction.AddPurchase(
+                                parentTitle = categoryTitleValue.value,
+                                coast = coastValue.value.toDouble(),
+                                description = descriptionValue.value
                             )
-                            viewModel.execute(
-                                CategoriesAction.AddCategories(
-                                    title = listTitleValue.value,
-                                    spentSum = coastValue.value.toLong(),
-                                    expectedSum = coastValue.value.toLong()
-                                )
-                            )
-                            viewModel.execute(NavigationAction.HideAddContent())
+                        )
+
+                        var targetCategory: CategoriesDb? = null
+                        allCategories.forEach { category ->
+                            if (category.title == categoryTitleValue.value) {
+                                targetCategory = category
+                            }
                         }
+                        targetCategory?.let {
+                            //when user didn't specify expect sum in category
+                            if (it.expectedSum == it.spentSum) {
+                                viewModel.execute(
+                                    CategoriesAction.AddCategories(
+                                        title = categoryTitleValue.value,
+                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
+                                        expectedSum = (coastValue.value.toDouble() + (it.expectedSum))
+                                    )
+                                )
+                            } else {
+                                //if user specify expect sum - expect sum holds
+                                viewModel.execute(
+                                    CategoriesAction.AddCategories(
+                                        title = categoryTitleValue.value,
+                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
+                                        expectedSum = it.expectedSum
+                                    )
+                                )
+                            }
+                        }
+                    } ?: run {
+                        //if category with added title doesn't create yet
+                        viewModel.execute(
+                            CategoriesAction.AddCategories(
+                                title = categoryTitleValue.value,
+                                spentSum = coastValue.value.toDouble(),
+                                expectedSum = coastValue.value.toDouble()
+                            )
+                        )
                     }
-                ) {
-                    Image(
-                        modifier = Modifier,
-                        painter = painterResource(id = R.drawable.ic_add),
-                        contentDescription = null
-                    )
+
+                    viewModel.execute(NavigationAction.HideAddContent())
                 }
+            ) {
+                Image(
+                    modifier = Modifier,
+                    painter = painterResource(id = R.drawable.ic_add),
+                    contentDescription = null
+                )
             }
         }
+
     }
+}
+

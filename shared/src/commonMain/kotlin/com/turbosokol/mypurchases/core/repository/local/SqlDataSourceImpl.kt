@@ -11,6 +11,7 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
     private val dataBase = SqlDatabase(sqlDriver)
     private val queries = dataBase.tablesQueries
 
+    //CATEGORIES
     override suspend fun getAllCategories(): List<CategoriesDb> {
         return queries.getCategoriesAll().executeAsList()
     }
@@ -19,14 +20,8 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return withContext(appDispatcher) { queries.getCategoriesByTitle(title).executeAsOneOrNull() }
     }
 
-    override suspend fun insertCategory(title: String, spentSum: Long, expectedSum: Long) {
-        return withContext(appDispatcher) {
-            queries.insertCategory(
-                title,
-                spentSum,
-                expectedSum
-            )
-        }
+    override suspend fun insertCategory(title: String, spentSum: Double, expectedSum: Double?) {
+        return withContext(appDispatcher) { queries.insertCategory(title, spentSum, expectedSum = expectedSum?:0.0) }
     }
 
     override suspend fun deleteAllCategories() {
@@ -37,6 +32,7 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return withContext(appDispatcher) {queries.deleteCategoryByTitle(title)}
     }
 
+    //PURCHASES
     override suspend fun getAllPurchases(): List<PurchaseDb> {
         return  queries.getPurchaseAll().executeAsList()
     }
@@ -49,7 +45,7 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return withContext(appDispatcher) { queries.getPurchaseById(id).executeAsOneOrNull() }
     }
 
-    override suspend fun insertPurchase(parentTitle: String, coast: Long, title: String?) {
+    override suspend fun insertPurchase(parentTitle: String, coast: Double, title: String?) {
         return withContext(appDispatcher) { queries.insertPurchase(parentTitle, coast, title) }
     }
 

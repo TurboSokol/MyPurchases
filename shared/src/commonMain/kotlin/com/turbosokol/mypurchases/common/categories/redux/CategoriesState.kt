@@ -7,10 +7,10 @@ import comturbosokolmypurchases.CategoriesDb
 data class CategoriesState(
     val progress: Boolean,
     val title: String,
-    val spentSum: Long,
-    val expectedSum: Long,
+    val spentSum: Double,
+    val expectedSum: Double,
     val categoryItems: List<CategoriesDb>,
-    val expandableCategory: CategoriesDb
+    val targetCategory: CategoriesDb
 ) : GeneralState {
 
     companion object {
@@ -18,24 +18,22 @@ data class CategoriesState(
             return CategoriesState(
                 progress = true,
                 title = "",
-                spentSum = 0,
-                expectedSum = 0,
+                spentSum = 0.0,
+                expectedSum = 0.0,
                 categoryItems = emptyList(),
-                expandableCategory = CategoriesDb(title = "", spentSum = 0L, expectedSum = 0L)
+                targetCategory = CategoriesDb(title = "", spentSum = 0.0, expectedSum = 0.0)
             )
         }
     }
 }
 
 sealed class CategoriesAction : Action {
-    data class AddCategories(val title: String, val spentSum: Long, val expectedSum: Long) :
-        CategoriesAction()
-
+    data class AddCategories(val title: String, val spentSum: Double, val expectedSum: Double?) : CategoriesAction()
     object GetAllCategories : CategoriesAction()
     data class SetCategories(val categoriesItems: List<CategoriesDb>) : CategoriesAction()
     data class GetCategory(val categoryTitle: String) : CategoriesAction()
-    data class SetExpandableCategory(val expandableList: CategoriesDb) : CategoriesAction()
+    data class SetTargetCategory(val targetCategory: CategoriesDb) : CategoriesAction()
     object DeleteAllCategories : CategoriesAction()
-    data class DeleteListByTitle(val listTitle: String) : CategoriesAction()
+    data class DeleteCategoryByTitle(val categoryTitle: String) : CategoriesAction()
 
 }

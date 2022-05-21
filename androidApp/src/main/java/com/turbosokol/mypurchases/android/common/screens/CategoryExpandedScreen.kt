@@ -8,16 +8,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.insets.ui.Scaffold
 import com.turbosokol.mypurchases.android.common.components.AddPurchaseContent
 import com.turbosokol.mypurchases.android.common.components.AppTopBar
 import com.turbosokol.mypurchases.android.common.components.PurchaseColumnItem
@@ -49,10 +46,11 @@ fun CategoryExpandedScreen(
 
 
     val scrollState = rememberLazyListState()
-    val expandableList = categoriesState.expandableCategory
+    val expandableList = categoriesState.targetCategory
     viewModel.execute(PurchaseAction.GetAllPurchasesByParent(expandableList.title))
     val currentPurchasesList = purchaseState.purchaseItems
 
+    val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
@@ -64,15 +62,15 @@ fun CategoryExpandedScreen(
                 title = expandableList.title,
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = false,
-                onOptionsClick = { /*TODO*/ },
+                onOptionsClick = { /*TODO("EditContent")*/ },
                 hasRightButton = true,
                 rightContentType = RightTopBarContentType.DELETE,
                 onRightClick = { /*TODO*/ })
 
         },
         sheetContent = {
-//            TODO("EditContent")
-            AddPurchaseContent() },
+            AddPurchaseContent(keyboard = keyboard)
+        },
         scaffoldState = bottomSheetState,
         sheetPeekHeight = 0.dp
     ) {

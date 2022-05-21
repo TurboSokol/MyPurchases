@@ -6,13 +6,16 @@ import com.turbosokol.mypurchases.core.redux.Reducer
 class CategoriesReducer: Reducer<CategoriesState> {
     override fun reduce(oldState: CategoriesState, action: Action): CategoriesState {
         return when (action) {
+            is CategoriesAction.GetCategory -> {
+                oldState.copy(progress = true)
+            }
 
             is CategoriesAction.SetCategories -> {
                 oldState.copy(progress = false, categoryItems = action.categoriesItems)
             }
 
-            is CategoriesAction.SetExpandableCategory -> {
-                oldState.copy(progress = false, expandableCategory = action.expandableList)
+            is CategoriesAction.SetTargetCategory -> {
+                oldState.copy(progress = false, targetCategory = action.targetCategory)
             }
             else -> oldState
         }

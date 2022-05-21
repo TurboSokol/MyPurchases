@@ -1,7 +1,7 @@
 CREATE TABLE purchaseDb(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     parent TEXT NOT NULL,
-    coast INTEGER NOT NULL,
+    coast REAL NOT NULL,
     title TEXT
 );
 
@@ -43,8 +43,8 @@ DELETE FROM purchaseDb;
 
 CREATE TABLE categoriesDb (
     title TEXT NOT NULL PRIMARY KEY,
-    spentSum INTEGER NOT NULL,
-    expectedSum INTEGER NOT NULL
+    spentSum REAL NOT NULL,
+    expectedSum REAL NOT NULL
 );
 
 getCategoriesAll:

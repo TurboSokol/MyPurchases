@@ -117,15 +117,14 @@ fun <T> ExpandableHintContent(hintList: List<T>, onItemClick: (String) -> Unit) 
             Card(modifier = Modifier
                 .wrapContentWidth()
                 .padding(4.dp),
-            elevation = 0.3.dp) {
+            elevation = 0.7.dp) {
                 Row(modifier = Modifier.clickable {
                     onItemClick(item)
                 }, verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.weight(1F))
-                    androidx.compose.material3.Text(
+                    Text(
                         modifier = Modifier.padding(vertical = 4.dp),
-                        text = item,
-                        style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                        text = item
                     )
                 }
             }
