@@ -1,6 +1,7 @@
 package com.turbosokol.mypurchases.android.common
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
+@ExperimentalTransitionApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
@@ -41,19 +43,13 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
                 onCategoryClick = { categoryTitle ->
                     viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
                     navController.navigate(CATEGORIES_EXPANDED_VIEW_ROUTE)
-                },
-                onPurchaseClick = { purchaseId ->
-                    viewModel.execute(PurchaseAction.GetPurchase(purchaseId))
                 }
             )
         }
 
         composable(CATEGORIES_EXPANDED_VIEW_ROUTE) {
-            CategoryExpandedScreen(
-                navController = navController,
-                onPurchaseClick = {
+            CategoryExpandedScreen(navController = navController)
 
-                })
         }
     }
 }

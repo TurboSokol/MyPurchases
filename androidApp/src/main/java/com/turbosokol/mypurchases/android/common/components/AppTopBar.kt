@@ -1,5 +1,6 @@
 package com.turbosokol.mypurchases.android.common.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -11,14 +12,22 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
+import com.turbosokol.mypurchases.android.core.ReduxViewModel
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
+import org.koin.androidx.compose.getViewModel
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 @Composable
 fun AppTopBar(
     title: String? = null,
     hasBackButton: Boolean = true,
+//    ЗАМЕНИТЬ СТЕЙТЫ НА ОДИН APPBAR STATE
+    appTopBarStateType: AppTopBarStateType = AppTopBarStateType.DEFAULT,
     onBackClick: () -> Unit,
     hasOptionsButton: Boolean,
     onOptionsClick: () -> Unit,
@@ -30,8 +39,6 @@ fun AppTopBar(
     rightContentType: RightTopBarContentType? = RightTopBarContentType.DELETE,
     topBarHideState: TopBarHideState = TopBarHideState.SHOWN
 ) {
-
-
     TopAppBar() {
         Row(modifier = Modifier
             .weight(1F)
@@ -109,9 +116,11 @@ fun AppTopBarSubRightButton(
         }
     }
     Icon(
-        modifier = modifier.clickable {
-            onSubRightButtonClick()
-        },
+        modifier = modifier
+            .background(Color.Blue)
+            .clickable {
+                onSubRightButtonClick()
+            },
         painter = painterResource(id = rightButtonIcon),
         contentDescription = null
     )

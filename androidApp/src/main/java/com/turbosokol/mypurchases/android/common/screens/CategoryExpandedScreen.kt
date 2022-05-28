@@ -1,5 +1,6 @@
 package com.turbosokol.mypurchases.android.common.screens
 
+import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,12 +30,12 @@ import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
 
 const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 
+@ExperimentalTransitionApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -42,8 +43,7 @@ const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 @Composable
 fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
-    navController: NavController,
-    onPurchaseClick: (Long) -> Unit
+    navController: NavController
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -125,12 +125,21 @@ fun CategoryExpandedScreen(
                 itemsIndexed(currentPurchasesList) { index, item ->
                     PurchaseColumnItem(
                         coast = item.coast,
-                        title = item.description,
+                        description = item.description ?: "",
                         purchaseStateType = PurchasesStateType.DEFAULT,
-                        onPurchaseClick = {
-                            when (purchasesStateType) { PurchasesStateType.DEFAULT -> { /*TODO("describe purchase?")*/ }
-                                PurchasesStateType.EDIT -> { coroutineScope.launch { bottomSheetState.bottomSheetState.expand() } }
-                            }
+                        keyboard = keyboard,
+                        onPurchaseModified = { coast, description ->
+                            viewModel.execute(
+                                PurchaseAction.EditPurchase(
+                                    id = item.id,
+                                    parentTitle = item.parent,
+                                    coast = coast,
+                                    description = description
+                                )
+                            )
+                        },
+                        onPurchaseDeleted = {
+                            viewModel.execute(PurchaseAction.DeletePurchaseById(item.id))
                         }
                     )
                 }

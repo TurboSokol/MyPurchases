@@ -1,7 +1,7 @@
 package com.turbosokol.mypurchases.android.common.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.Center
@@ -21,12 +18,12 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
@@ -44,17 +41,17 @@ import kotlin.time.ExperimentalTime
 
 const val MAIN_SCREEN_ROTE = "Main Screen"
 
+@SuppressLint("CoroutineCreationDuringComposition")
+@ExperimentalTransitionApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
-@SuppressLint("CoroutineCreationDuringComposition")
 @ExperimentalMaterialApi
 @ExperimentalTime
 @Composable
 fun MainScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    onCategoryClick: (String) -> Unit,
-    onPurchaseClick: (Long) -> Unit
+    onCategoryClick: (String) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -73,12 +70,13 @@ fun MainScreen(
     val mainScreenLookType = navigationState.mainScreenLookType
     val purchasesStateType = navigationState.purchasesStateType
     val categoriesStateType = navigationState.categoriesStateType
+    val appBarStateType = navigationState.appTopBarStateType
 
     val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
-    val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-    )
+    val localContext = LocalContext.current
+    val bottomSheetState =
+        rememberBottomSheetScaffoldState(bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed))
 
     if (showAddSContent) {
         coroutineScope.launch {
@@ -90,6 +88,7 @@ fun MainScreen(
         }
     }
 
+
     BottomSheetScaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             AppTopBar(
@@ -98,6 +97,10 @@ fun MainScreen(
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = true,
                 onOptionsClick = {
+
+
+                    //WEAK UPDATE DB
+                    if (appBarStateType != AppTopBarStateType.DEFAULT) viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
                         viewModel.execute(NavigationAction.SwitchMainScreenLook(MainScreenLookType.PURCHASES))
                     } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
@@ -107,22 +110,17 @@ fun MainScreen(
                 hasSubRightButton = true,
                 subRightContentType = RightTopBarContentType.EDIT,
                 onSubRightClick = {
-                    when (mainScreenLookType) {
-                        MainScreenLookType.PURCHASES -> {
-                            if (purchasesStateType == PurchasesStateType.DEFAULT) {
-                                viewModel.execute(NavigationAction.SwitchPurchaseStateType(PurchasesStateType.EDIT))
-                            } else { viewModel.execute(NavigationAction.SwitchPurchaseStateType(PurchasesStateType.DEFAULT)) }
-                        }
-                        MainScreenLookType.CATEGORIES -> {
-                            if (categoriesStateType == CategoriesStateType.DEFAULT) {
-                                viewModel.execute(NavigationAction.SwitchCategoriesStateType(CategoriesStateType.EDIT))
-                            } else { viewModel.execute(NavigationAction.SwitchCategoriesStateType(CategoriesStateType.DEFAULT)) }
-                        }
-                    }
+                    if (appBarStateType == AppTopBarStateType.DEFAULT) {
+                        viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.EDIT))
+                    } else {viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))}
                 },
                 hasRightButton = true,
                 rightContentType = RightTopBarContentType.DELETE,
-                onRightClick = { viewModel.execute(PurchaseAction.DeleteAllPurchases) })
+                onRightClick = {
+                    if (appBarStateType == AppTopBarStateType.DEFAULT) {
+                        viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DELETE))
+                    } else {viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))}
+                })
         },
         sheetContent = {
             when (addButtonContentType) {
@@ -177,19 +175,26 @@ fun MainScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 if (mainScreenLookType == MainScreenLookType.CATEGORIES) {
-                    MainScreenCategoryContent(categoryItems, categoriesStateType,
+                    MainScreenCategoryContent(categoryItems, categoriesStateType, keyboard,
                         // IMPLEMENTED in navigation
                         onCategoryClick = { title ->
                             when (categoriesStateType) {
                                 CategoriesStateType.DEFAULT -> {
-                                    onCategoryClick
+                                    onCategoryClick(title)
                                 }
                                 CategoriesStateType.EDIT -> {
                                     viewModel.execute(CategoriesAction.GetCategory(title))
                                     coroutineScope.launch {
                                         bottomSheetState.bottomSheetState.expand()
                                     }
-                                    viewModel.execute(NavigationAction.ShowAddContent(AddButtonContentType.CATEGORY))
+                                    viewModel.execute(
+                                        NavigationAction.ShowAddContent(
+                                            AddButtonContentType.CATEGORY
+                                        )
+                                    )
+                                    coroutineScope.launch {
+                                        bottomSheetState.bottomSheetState.expand()
+                                    }
                                 }
                                 CategoriesStateType.DELETE -> {
                                     viewModel.execute(CategoriesAction.DeleteCategoryByTitle(title))
@@ -197,21 +202,60 @@ fun MainScreen(
                             }
                         })
                 } else if (mainScreenLookType == MainScreenLookType.PURCHASES) {
-                    MainScreenPurchaseContent(purchaseItems, purchasesStateType,
+                    MainScreenPurchaseContent(purchaseItems, purchasesStateType, keyboard,
                         // IMPLEMENTED in navigation
-                        onPurchaseClick = { id ->
-                            when (purchasesStateType) {
-                                PurchasesStateType.DEFAULT -> {
-                                    onPurchaseClick
-                                }
-                                PurchasesStateType.EDIT -> {
-                                    viewModel.execute(PurchaseAction.GetPurchase(id))
-                                    viewModel.execute(NavigationAction.ShowAddContent(AddButtonContentType.PURCHASE))
-                                }
-                                PurchasesStateType.DELETE -> {
-                                    viewModel.execute(PurchaseAction.DeletePurchaseById(id))
+                        onPurchaseDeleted = { id, parent, coast ->
+                            var editableCategory: CategoriesDb? = null
+                            categoryItems.forEach { category ->
+                                if (category.title == parent) {
+                                    editableCategory = category
                                 }
                             }
+
+                            editableCategory?.let {
+                                viewModel.execute(
+                                    CategoriesAction.AddCategories(
+                                        title = parent,
+                                        spentSum = (it.spentSum - coast),
+                                        expectedSum = it.expectedSum
+                                    )
+                                )
+                                viewModel.execute(PurchaseAction.DeletePurchaseById(id))
+                            }
+                        }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
+
+                            var editableCategory: CategoriesDb? = null
+                            categoryItems.forEach { category ->
+                                if (category.title == parent) {
+                                    editableCategory = category
+                                }
+                            }
+
+                            editableCategory?.let {
+                                viewModel.execute(
+                                    CategoriesAction.AddCategories(
+                                        title = parent,
+                                        spentSum = (it.spentSum - oldCoast + newCoast),
+                                        expectedSum = it.expectedSum
+                                    )
+                                )
+
+                                viewModel.execute(
+                                    PurchaseAction.EditPurchase(
+                                        id = id,
+                                        parentTitle = parent,
+                                        coast = newCoast,
+                                        description = description
+                                    )
+                                )
+
+                                viewModel.execute(
+                                    NavigationAction.SwitchPurchaseStateType(
+                                        PurchasesStateType.DEFAULT
+                                    )
+                                )
+                            }
+
                         })
                 }
             }
@@ -221,10 +265,12 @@ fun MainScreen(
     }
 }
 
+@ExperimentalComposeUiApi
 @Composable
 fun MainScreenCategoryContent(
     categoryItems: List<CategoriesDb>,
     categoriesStateType: CategoriesStateType,
+    keyboard: SoftwareKeyboardController?,
     onCategoryClick: (String) -> Unit
 ) {
     Column(
@@ -263,7 +309,8 @@ fun MainScreenCategoryContent(
                             title = item.title,
                             spentSum = item.spentSum,
                             expectedSum = item.expectedSum,
-                            categoriesStateType
+                            categoriesStateType,
+                            keyboard
                         ) {
                             onCategoryClick(item.title)
                         }
@@ -274,11 +321,15 @@ fun MainScreenCategoryContent(
     }
 }
 
+@ExperimentalTransitionApi
+@ExperimentalComposeUiApi
 @Composable
 fun MainScreenPurchaseContent(
     purchaseItems: List<PurchaseDb>,
     purchasesStateType: PurchasesStateType,
-    onPurchaseClick: (Long) -> Unit
+    keyboard: SoftwareKeyboardController?,
+    onPurchaseDeleted: (id:Long, parent: String, coast: Double) -> Unit,
+    onPurchaseModified: (id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String?) -> Unit
 ) {
     val scrollState = rememberLazyListState()
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -287,9 +338,9 @@ fun MainScreenPurchaseContent(
                 .padding(
                     start = AppTheme.appPaddingMedium,
                     end = AppTheme.appPaddingMedium,
-                    top = AppTheme.appPaddingMedium
-                )
-                .border(AppTheme.appBorderStroke), verticalAlignment = CenterVertically
+                    top = AppTheme.appPaddingMedium,
+                    bottom = AppTheme.appPaddingMedium
+                ), verticalAlignment = CenterVertically
         ) {
             Text(modifier = Modifier.weight(0.4F), textAlign = TextAlign.Center, text = "Coast")
             Text(modifier = Modifier.weight(0.6F), textAlign = TextAlign.Center, text = "Title")
@@ -305,11 +356,19 @@ fun MainScreenPurchaseContent(
                     itemsIndexed(purchaseItems) { index, item ->
                         PurchaseColumnItem(
                             coast = item.coast,
-                            title = item.description,
-                            purchaseStateType = purchasesStateType
-                        ) {
-                            onPurchaseClick(item.id)
-                        }
+                            description = item.description ?: "",
+                            purchaseStateType = purchasesStateType,
+                            keyboard = keyboard,
+                            onPurchaseDeleted = {
+                                onPurchaseDeleted(item.id, item.parent, item.coast)
+                            },
+                            onPurchaseModified = { coast, description ->
+                                onPurchaseModified(
+                                    item.id, item.parent, item.coast,
+                                    coast, description
+                                )
+                            }
+                        )
                     }
                 }
             }

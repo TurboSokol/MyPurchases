@@ -15,11 +15,8 @@ class NavigationReducer: Reducer<NavigationState> {
             is NavigationAction.SwitchMainScreenLook -> {
                 oldState.copy(mainScreenLookType = action.mainScreenLookType)
             }
-            is NavigationAction.SwitchPurchaseStateType -> {
-                oldState.copy(purchasesStateType = action.purchasesStateType)
-            }
-            is NavigationAction.SwitchCategoriesStateType -> {
-                oldState.copy(categoriesStateType = action.categoriesStateType)
+            is NavigationAction.SwitchAppBarStateType -> {
+                oldState.copy(appTopBarStateType = action.appBarStateType)
             }
             else -> oldState
         }
