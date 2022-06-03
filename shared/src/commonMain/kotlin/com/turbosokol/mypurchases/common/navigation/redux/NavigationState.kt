@@ -4,55 +4,35 @@ import com.turbosokol.mypurchases.core.redux.Action
 import com.turbosokol.mypurchases.core.redux.GeneralState
 
 data class NavigationState(
-    val addButtonType: AddButtonContentType,
+    val addButtonType: ContentType,
     val showAddContent: Boolean,
-    val mainScreenLookType: MainScreenLookType,
-    val purchasesStateType: PurchasesStateType,
-    val categoriesStateType: CategoriesStateType,
-    val appTopBarStateType: AppTopBarStateType
+    val contentType: ContentType,
+    val appTopBarStateType: AppTopBarStateType,
+    val checkChanges: Boolean
 ) : GeneralState {
 
     companion object {
         fun getDefault(): NavigationState = NavigationState(
-            addButtonType = AddButtonContentType.PURCHASE,
+            addButtonType = ContentType.PURCHASE,
             showAddContent = false,
-            mainScreenLookType = MainScreenLookType.CATEGORIES,
-            purchasesStateType = PurchasesStateType.DEFAULT,
-            categoriesStateType = CategoriesStateType.DEFAULT,
-            appTopBarStateType = AppTopBarStateType.DEFAULT
+            contentType = ContentType.CATEGORY,
+            appTopBarStateType = AppTopBarStateType.DEFAULT,
+            checkChanges = false
         )
     }
 }
 
 sealed class NavigationAction : Action {
-    data class ShowAddContent(val contentType: AddButtonContentType) : NavigationAction()
+    data class ShowAddContent(val contentType: ContentType) : NavigationAction()
     data class HideAddContent(val showAddContent: Boolean = false): NavigationAction()
-    data class SwitchMainScreenLook(val mainScreenLookType: MainScreenLookType): NavigationAction()
-    data class SwitchPurchaseStateType(val purchasesStateType: PurchasesStateType): NavigationAction()
-    data class SwitchCategoriesStateType(val categoriesStateType: CategoriesStateType): NavigationAction()
+    data class SwitchMainScreenLook(val contentType: ContentType): NavigationAction()
     data class SwitchAppBarStateType(val appBarStateType: AppTopBarStateType): NavigationAction()
+    data class CheckChanges(val flag: Boolean): NavigationAction()
 }
 
-enum class AddButtonContentType {
+enum class ContentType {
     PURCHASE,
     CATEGORY
-}
-
-enum class MainScreenLookType {
-    CATEGORIES,
-    PURCHASES
-}
-
-enum class PurchasesStateType {
-    DEFAULT,
-    EDIT,
-    DELETE
-}
-
-enum class CategoriesStateType {
-    DEFAULT,
-    EDIT,
-    DELETE
 }
 
 enum class AppTopBarStateType {

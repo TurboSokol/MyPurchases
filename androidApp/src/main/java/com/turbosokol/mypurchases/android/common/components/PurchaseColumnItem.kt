@@ -25,36 +25,40 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
-import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
-import com.turbosokol.mypurchases.common.purchases.redux.PurchaseState
+import com.turbosokol.mypurchases.android.common.theme.MyRedColor
+import com.turbosokol.mypurchases.android.core.ReduxViewModel
+import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
+import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.getViewModel
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 @ExperimentalTransitionApi
 @ExperimentalComposeUiApi
 @Composable
 fun PurchaseColumnItem(
+    viewModel: ReduxViewModel = getViewModel(),
     coast: Double,
     description: String,
-    purchaseStateType: PurchasesStateType,
     keyboard: SoftwareKeyboardController?,
+    appTopBarStateType: AppTopBarStateType,
     onPurchaseModified: (Double, String) -> Unit,
     onPurchaseDeleted: () -> Unit
 ) {
 
-    val cardBorder = remember { mutableStateOf(AppTheme.appBorderStroke) }
-    val cardAlpha = remember { mutableStateOf(1F) }
+    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
+    val state by stateFlow.collectAsState(Dispatchers.Main)
+    val navigationState = state.getNavigationState()
+
+    val checkChanges = navigationState.checkChanges
+
     val descriptionValue = remember { mutableStateOf(description) }
     val coastValue = remember { mutableStateOf(coast.toString()) }
 
-
     val animationTransition = rememberInfiniteTransition()
-    val animatedAlpha by animationTransition.animateFloat(
-        initialValue = 0.2F,
-        targetValue = 0.9F,
-        animationSpec = InfiniteRepeatableSpec(
-            tween(500),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
     val animationElevation by animationTransition.animateValue(
         initialValue = 0.dp,
         targetValue = 24.dp,
@@ -73,55 +77,22 @@ fun PurchaseColumnItem(
             repeatMode = RepeatMode.Reverse
         )
     )
-
-//    var editAnimationState by remember { mutableStateOf(AnimationState.InitialState) }
-//    val animationTransition = updateTransition(targetState = editAnimationState, label = "")
-//    val firstAnimationTransition =
-//        animationTransition.createChildTransition { it != AnimationState.InitialState }
-//    val secondAnimationTransition =
-//        animationTransition.createChildTransition { it == AnimationState.SecondState }
-//    val editFirstAlfa by firstAnimationTransition.animateFloat(
-//        transitionSpec = { tween(durationMillis = 2000) },
-//        label = ""
-//    ) {
-//        if (it) 0.8F else 0.0F
-//    }
-//    val editFirstElevation by firstAnimationTransition.animateDp(
-//        transitionSpec = { tween(durationMillis = 2000) },
-//        label = ""
-//    ) {
-//        if (it) 30.dp else 10.dp
-//    }
-//    val editSecondAlfa by secondAnimationTransition.animateFloat(transitionSpec = {
-//        tween(
-//            durationMillis = 500
-//        )
-//    }, label = "") {
-//        if (it) 1F else 0.2F
-//    }
-
-
-    if (purchaseStateType == PurchasesStateType.DEFAULT) {
-        cardBorder.value = AppTheme.appBorderStroke
-        cardAlpha.value = 1F
-    } else {
-        cardBorder.value = BorderStroke(animationBorderWeight, Color.Red)
-        cardAlpha.value = animatedAlpha
-    }
+    val animatedBorder = BorderStroke(animationBorderWeight, MyRedColor)
 
 
     Card(
         modifier = Modifier
             .padding(
-                horizontal = AppTheme.appPaddingMedium,
-                vertical = AppTheme.appPaddingSmall
+                horizontal = AppTheme.appPaddingMedium8,
+                vertical = AppTheme.appPaddingSmall3
             )
-            .clickable(enabled = (purchaseStateType != PurchasesStateType.DEFAULT)) {
-                if (purchaseStateType == PurchasesStateType.DELETE) {
+            .border(if (appTopBarStateType == AppTopBarStateType.DELETE) animatedBorder else AppTheme.appBorderStroke)
+            .clickable(enabled = (appTopBarStateType != AppTopBarStateType.DEFAULT)) {
+                if (appTopBarStateType == AppTopBarStateType.DELETE) {
                     onPurchaseDeleted()
                 }
             },
-        elevation = if (purchaseStateType == PurchasesStateType.DEFAULT) {
+        elevation = if (appTopBarStateType == AppTopBarStateType.DEFAULT) {
             AppTheme.appLazyColumnItemElevation
         } else {
             animationElevation
@@ -130,7 +101,7 @@ fun PurchaseColumnItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 4.dp),
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // COAST
@@ -141,25 +112,26 @@ fun PurchaseColumnItem(
                     .weight(0.4F),
                 elevation = AppTheme.appLazyColumnItemElevation
             ) {
-                Row() {
+                Row {
                     //Coast title
                     Text(
                         modifier = Modifier
-                            .padding(AppTheme.appPaddingMedium)
+                            .padding(AppTheme.appPaddingMedium8)
                             .defaultMinSize(1.dp),
                         text = stringResource(R.string.purchase_column_item_coast_title),
                         style = MaterialTheme.typography.subtitle1
                     )
                     //Coast value
                     BasicTextField(modifier = Modifier
-                        .padding(end = AppTheme.appPaddingNano)
+                        .padding(end = AppTheme.appPaddingNano1)
                         .border(
-                            if (purchaseStateType == PurchasesStateType.EDIT) cardBorder.value else BorderStroke(
-                                0.dp,
-                                Color.Transparent
-                            )
+                            if (appTopBarStateType == AppTopBarStateType.EDIT) {
+                                animatedBorder
+                            } else {
+                                BorderStroke((-1).dp, Color.Transparent)
+                            }
                         )
-                        .padding(AppTheme.appPaddingMedium)
+                        .padding(AppTheme.appPaddingMedium8)
 
                         .align(CenterVertically),
                         keyboardOptions = KeyboardOptions(
@@ -170,7 +142,7 @@ fun PurchaseColumnItem(
                             keyboard?.hide()
                             onPurchaseModified(coastValue.value.toDouble(), descriptionValue.value)
                         }), value = coastValue.value,
-                        enabled = (purchaseStateType == PurchasesStateType.EDIT),
+                        enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
                         onValueChange = { text ->
                             val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
                             coastValue.value = validateRegexPattern.find(text)?.value.toString()
@@ -182,12 +154,18 @@ fun PurchaseColumnItem(
             Card(
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
-                    .border(cardBorder.value)
-                    .weight(0.7F),
+                    .border(
+                        if (appTopBarStateType == AppTopBarStateType.EDIT) {
+                            animatedBorder
+                        } else {
+                            AppTheme.appBorderStroke
+                        }
+                    )
+                    .weight(0.6F),
                 elevation = AppTheme.appLazyColumnItemElevation
             ) {
                 BasicTextField(modifier = Modifier
-                    .padding(AppTheme.appPaddingMedium)
+                    .padding(AppTheme.appPaddingMedium8)
                     .defaultMinSize(1.dp)
                     .fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -196,17 +174,17 @@ fun PurchaseColumnItem(
                         onPurchaseModified(coastValue.value.toDouble(), descriptionValue.value)
                     }),
                     value = descriptionValue.value,
-                    enabled = (purchaseStateType == PurchasesStateType.EDIT),
+                    enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
                     onValueChange = { descriptionValue.value = it })
             }
         }
     }
 
-    if (purchaseStateType != PurchasesStateType.EDIT) {
-        keyboard?.hide()
+    if (checkChanges) {
         if (descriptionValue.value != description || coastValue.value != coast.toString()) {
+            keyboard?.hide()
             onPurchaseModified(coastValue.value.toDouble(), descriptionValue.value)
         }
+        viewModel.execute(NavigationAction.CheckChanges(false))
     }
-
 }

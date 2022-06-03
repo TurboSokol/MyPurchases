@@ -22,11 +22,11 @@ import androidx.navigation.NavController
 import com.turbosokol.mypurchases.android.common.components.AddPurchaseContent
 import com.turbosokol.mypurchases.android.common.components.AppTopBar
 import com.turbosokol.mypurchases.android.common.components.PurchaseColumnItem
-import com.turbosokol.mypurchases.android.common.components.RightTopBarContentType
+import com.turbosokol.mypurchases.android.common.components.TopBarButtonsType
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
-import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -57,7 +57,7 @@ fun CategoryExpandedScreen(
     viewModel.execute(PurchaseAction.GetAllPurchasesByParent(expandableList.title))
 
     val currentPurchasesList = purchaseState.purchaseItems
-    val purchasesStateType = navigationState.purchasesStateType
+    val appTopBarStateType = navigationState.appTopBarStateType
 
     val keyboard = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
@@ -73,37 +73,37 @@ fun CategoryExpandedScreen(
                 hasOptionsButton = false,
                 onOptionsClick = {},
                 hasSubRightButton = true,
-                subRightContentType = RightTopBarContentType.EDIT,
+                subRightContentType = TopBarButtonsType.EDIT,
                 onSubRightClick = {
-                    when (purchasesStateType) {
-                        PurchasesStateType.DEFAULT -> {
+                    when (appTopBarStateType) {
+                        AppTopBarStateType.DEFAULT -> {
                             viewModel.execute(
-                                NavigationAction.SwitchPurchaseStateType(
-                                    PurchasesStateType.EDIT
+                                NavigationAction.SwitchAppBarStateType(
+                                    AppTopBarStateType.EDIT
                                 )
                             )
                         }
                         else -> viewModel.execute(
-                            NavigationAction.SwitchPurchaseStateType(
-                                PurchasesStateType.DEFAULT
+                            NavigationAction.SwitchAppBarStateType(
+                                AppTopBarStateType.DEFAULT
                             )
                         )
                     }
                 },
                 hasRightButton = true,
-                rightContentType = RightTopBarContentType.DELETE,
+                rightContentType = TopBarButtonsType.DELETE,
                 onRightClick = {
-                    when (purchasesStateType) {
-                        PurchasesStateType.DEFAULT -> {
+                    when (appTopBarStateType) {
+                        AppTopBarStateType.DEFAULT -> {
                             viewModel.execute(
-                                NavigationAction.SwitchPurchaseStateType(
-                                    PurchasesStateType.DELETE
+                                NavigationAction.SwitchAppBarStateType(
+                                    AppTopBarStateType.DELETE
                                 )
                             )
                         }
                         else -> viewModel.execute(
-                            NavigationAction.SwitchPurchaseStateType(
-                                PurchasesStateType.DEFAULT
+                            NavigationAction.SwitchAppBarStateType(
+                                AppTopBarStateType.DEFAULT
                             )
                         )
                     }
@@ -126,8 +126,8 @@ fun CategoryExpandedScreen(
                     PurchaseColumnItem(
                         coast = item.coast,
                         description = item.description ?: "",
-                        purchaseStateType = PurchasesStateType.DEFAULT,
                         keyboard = keyboard,
+                        appTopBarStateType = appTopBarStateType,
                         onPurchaseModified = { coast, description ->
                             viewModel.execute(
                                 PurchaseAction.EditPurchase(

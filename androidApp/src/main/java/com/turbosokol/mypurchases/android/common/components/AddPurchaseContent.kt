@@ -34,14 +34,12 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
-import com.turbosokol.mypurchases.android.common.utils.checkAndAddCategory
+import com.turbosokol.mypurchases.android.common.utils.manageOrAddCategory
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
-import com.turbosokol.mypurchases.common.navigation.redux.PurchasesStateType
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -64,15 +62,14 @@ fun AddPurchaseContent(
     val navigationState = state.getNavigationState()
     val allCategories = categoriesState.categoryItems
     val editablePurchase = purchasesState.editablePurchase
-    val purchasesStateType = navigationState.purchasesStateType
-
+    val appTopBarStateType = navigationState.appTopBarStateType
 
     val categoryTitleValue =
-        remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.parent.toString() else "") }
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.parent else "") }
     val coastValue =
-        remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.coast.toString() else "") }
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.coast.toString() else "") }
     val descriptionValue =
-        remember { mutableStateOf(if (purchasesStateType == PurchasesStateType.EDIT) editablePurchase.description.toString() else "") }
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.description.toString() else "") }
     val keyboard = LocalSoftwareKeyboardController.current
     val localContext = LocalContext.current
 
@@ -171,8 +168,8 @@ fun AddPurchaseContent(
                 elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 onClick = {
-                    when (purchasesStateType) {
-                        PurchasesStateType.DEFAULT -> {
+                    when (appTopBarStateType) {
+                        AppTopBarStateType.DEFAULT -> {
                             if (coastValue.value.isEmpty()) {
                                 Toast.makeText(
                                     localContext,
@@ -189,15 +186,15 @@ fun AddPurchaseContent(
                                     )
                                 )
                                 // Find categories with same title and update it or create new one
-                                checkAndAddCategory(
+                                manageOrAddCategory(
                                     allCategories = allCategories,
-                                    categoryTitleValue = categoryTitleValue.value,
-                                    coastValue = coastValue.value
+                                    categoryTitle = categoryTitleValue.value,
+                                    spentSum = coastValue.value
                                 )
                             }
                         }
 
-                        PurchasesStateType.EDIT -> {
+                        AppTopBarStateType.EDIT -> {
                             if (coastValue.value.isEmpty()) {
                                 Toast.makeText(
                                     localContext,
@@ -215,10 +212,10 @@ fun AddPurchaseContent(
                                     )
                                 )
                                 // Find categories with same title and update it or create new one
-                                checkAndAddCategory(
+                                manageOrAddCategory(
                                     allCategories = allCategories,
-                                    categoryTitleValue = categoryTitleValue.value,
-                                    coastValue = coastValue.value
+                                    categoryTitle = categoryTitleValue.value,
+                                    spentSum = coastValue.value
                                 )
                             }
                         }
@@ -226,7 +223,6 @@ fun AddPurchaseContent(
                     }
 
                     viewModel.execute(NavigationAction.HideAddContent())
-
 
                 }
             ) {

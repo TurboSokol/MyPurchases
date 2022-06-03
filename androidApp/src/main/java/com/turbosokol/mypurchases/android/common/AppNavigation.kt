@@ -40,8 +40,8 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
         composable(MAIN_SCREEN_ROTE) {
             MainScreen(
                 navController = navController,
-                onCategoryClick = { categoryTitle ->
-                    viewModel.execute(CategoriesAction.GetCategory(categoryTitle))
+                onCategoryClick = { id ->
+                    viewModel.execute(CategoriesAction.GetCategory(id))
                     navController.navigate(CATEGORIES_EXPANDED_VIEW_ROUTE)
                 }
             )

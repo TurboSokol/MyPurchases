@@ -5,8 +5,9 @@ import comturbosokolmypurchases.PurchaseDb
 
 interface MyPurchaseDAO {
     suspend fun getAllCategories(): List<CategoriesDb>
-    suspend fun getCategoryByTitle(title: String): CategoriesDb?
+    suspend fun getCategoryById(id: Long): CategoriesDb?
     suspend fun insertCategory(title: String, spentSum: Double, expectedSum: Double?)
+    suspend fun editCategory(id: Long, title: String, spentSum: Double, expectedSum: Double?)
     suspend fun deleteAllCategories()
     suspend fun deleteCategoryByTitle(title: String)
 

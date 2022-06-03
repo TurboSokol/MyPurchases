@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -131,7 +130,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                         Toast.makeText(localContext, "Please enter Title", Toast.LENGTH_SHORT).show()
                     } else {
                         viewModel.execute(
-                            CategoriesAction.AddCategories(
+                            CategoriesAction.InsertCategories(
                                 title = titleValue.value,
                                 spentSum = 0.0,
                                 expectedSum = if (expectSumValue.value.isNotEmpty()) expectSumValue.value.toDouble() else null

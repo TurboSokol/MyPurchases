@@ -16,7 +16,7 @@ import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
-import com.turbosokol.mypurchases.common.navigation.redux.AddButtonContentType
+import com.turbosokol.mypurchases.common.navigation.redux.ContentType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
@@ -26,7 +26,7 @@ import kotlin.time.ExperimentalTime
 fun AddButton(
     modifier: Modifier = Modifier,
     viewModel: ReduxViewModel = getViewModel(),
-    contentType: AddButtonContentType,
+    contentType: ContentType,
     onClick:() -> Unit
 ) {
     Box(modifier = modifier) {
@@ -38,10 +38,10 @@ fun AddButton(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val title = when (contentType) {
-                AddButtonContentType.PURCHASE -> {
+                ContentType.PURCHASE -> {
                     stringResource(R.string.new_purchase_button)
                 }
-                AddButtonContentType.CATEGORY -> {
+                ContentType.CATEGORY -> {
                     stringResource(R.string.new_category_button)
                 }
                 else -> {
