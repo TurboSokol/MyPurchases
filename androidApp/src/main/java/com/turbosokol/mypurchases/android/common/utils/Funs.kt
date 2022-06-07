@@ -1,22 +1,15 @@
 package com.turbosokol.mypurchases.android.common.utils
 
-import androidx.compose.runtime.collectAsState
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
-import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
-import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
-import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import comturbosokolmypurchases.CategoriesDb
 import comturbosokolmypurchases.PurchaseDb
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
-import org.koin.androidx.compose.getViewModel
 import org.koin.java.KoinJavaComponent.inject
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-fun manageOrAddCategory(
+fun manageOrAddCategorySafety(
     allCategories: List<CategoriesDb>,
     categoryTitle: String,
     spentSum: String
@@ -66,7 +59,7 @@ fun manageOrAddCategory(
 
 
 @ExperimentalTime
-fun recalculateCategory(
+fun editCategorySafety(
     categoryId: Long,
     categoryTitle: String,
     spentSum: String,
@@ -92,7 +85,7 @@ fun recalculateCategory(
 
 
 @ExperimentalTime
-fun recalculatePurchase(id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String, categoryItems: List<CategoriesDb>) {
+fun editPurchaseSafety(id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String, categoryItems: List<CategoriesDb>) {
     val viewModel: ReduxViewModel by inject(ReduxViewModel::class.java)
 
     var editableCategory: CategoriesDb? = null
@@ -120,10 +113,31 @@ fun recalculatePurchase(id: Long, parent: String, oldCoast: Double, newCoast: Do
                 description = description
             )
         )
+    }
+}
 
+@ExperimentalTime
+fun deletePurchaseSafety(id: Long, parent: String, coast: Double, allCategoryItems: List<CategoriesDb>) {
+    val viewModel: ReduxViewModel by inject(ReduxViewModel::class.java)
 
+    var editableCategory: CategoriesDb? = null
+    allCategoryItems.forEach { category ->
+        if (category.title == parent) {
+            editableCategory = category
+        }
     }
 
+    editableCategory?.let {
+        viewModel.execute(
+            CategoriesAction.EditCategories(
+                id = it.id,
+                title = it.title,
+                spentSum = (it.spentSum - coast),
+                expectedSum = it.expectedSum
+            )
+        )
+        viewModel.execute(PurchaseAction.DeletePurchaseById(id))
+    }
 }
 
 

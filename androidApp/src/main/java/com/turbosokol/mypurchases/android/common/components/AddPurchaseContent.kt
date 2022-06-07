@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
-import com.turbosokol.mypurchases.android.common.utils.manageOrAddCategory
+import com.turbosokol.mypurchases.android.common.utils.manageOrAddCategorySafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
@@ -186,7 +186,7 @@ fun AddPurchaseContent(
                                     )
                                 )
                                 // Find categories with same title and update it or create new one
-                                manageOrAddCategory(
+                                manageOrAddCategorySafety(
                                     allCategories = allCategories,
                                     categoryTitle = categoryTitleValue.value,
                                     spentSum = coastValue.value
@@ -212,7 +212,7 @@ fun AddPurchaseContent(
                                     )
                                 )
                                 // Find categories with same title and update it or create new one
-                                manageOrAddCategory(
+                                manageOrAddCategorySafety(
                                     allCategories = allCategories,
                                     categoryTitle = categoryTitleValue.value,
                                     spentSum = coastValue.value

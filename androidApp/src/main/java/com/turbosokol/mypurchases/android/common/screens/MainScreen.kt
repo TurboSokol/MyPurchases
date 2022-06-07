@@ -24,8 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.common.theme.AppTheme.appPaddingMedium8
-import com.turbosokol.mypurchases.android.common.utils.recalculateCategory
-import com.turbosokol.mypurchases.android.common.utils.recalculatePurchase
+import com.turbosokol.mypurchases.android.common.utils.deletePurchaseSafety
+import com.turbosokol.mypurchases.android.common.utils.editCategorySafety
+import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -62,7 +63,7 @@ fun MainScreen(
     viewModel.execute(CategoriesAction.GetAllCategories)
     viewModel.execute(PurchaseAction.GetAllPurchases)
 
-    val categoryItems = categoriesState.categoryItems.reversed()
+    val allCategoryItems = categoriesState.categoryItems.reversed()
     val purchaseItems = purchasesState.purchaseItems
 
     val showAddSContent = navigationState.showAddContent
@@ -172,7 +173,7 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (contentType == ContentType.CATEGORY) {
-                MainScreenCategoryContent(categoryItems, keyboard, appTopBarStateType,
+                MainScreenCategoryContent(allCategoryItems, keyboard, appTopBarStateType,
                     onCategoryManage = { id, title, oldTitle, spentSum, expectSum ->
                         when (appTopBarStateType) {
                             AppTopBarStateType.EDIT -> {
@@ -182,7 +183,7 @@ fun MainScreen(
                                     )
                                 )
                                 val editablePurchases = purchasesState.purchaseItems
-                                recalculateCategory(
+                                editCategorySafety(
                                     id, title, spentSum, expectSum, editablePurchases
                                 )
                                 viewModel.execute(
@@ -220,33 +221,16 @@ fun MainScreen(
             } else {
                 MainScreenPurchaseContent(purchaseItems, keyboard, appTopBarStateType,
                     onPurchaseDeleted = { id, parent, coast ->
-                        var editableCategory: CategoriesDb? = null
-                        categoryItems.forEach { category ->
-                            if (category.title == parent) {
-                                editableCategory = category
-                            }
-                        }
-
-                        editableCategory?.let {
-                            viewModel.execute(
-                                CategoriesAction.EditCategories(
-                                    id = it.id,
-                                    title = parent,
-                                    spentSum = (it.spentSum - coast),
-                                    expectedSum = it.expectedSum
-                                )
-                            )
-                            viewModel.execute(PurchaseAction.DeletePurchaseById(id))
-                        }
+                        deletePurchaseSafety(id = id, parent = parent, coast = coast, allCategoryItems = allCategoryItems)
                     }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
                         //find editable category and edit coast values
-                        recalculatePurchase(
+                        editPurchaseSafety(
                             id = id,
                             parent = parent,
                             oldCoast = oldCoast,
                             newCoast = newCoast,
                             description = description ?: "",
-                            categoryItems = categoryItems
+                            categoryItems = allCategoryItems
                         )
                         viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     }

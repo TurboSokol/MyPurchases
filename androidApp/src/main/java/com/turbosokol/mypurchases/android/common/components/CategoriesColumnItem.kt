@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
-import com.turbosokol.mypurchases.android.common.utils.recalculateCategory
+import com.turbosokol.mypurchases.android.common.utils.editCategorySafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -213,7 +213,7 @@ fun CategoriesColumnItem(
         if (titleValue.value != title || spentSumValue.value != spentSum.toString() || expectSumValue.value != expectedSum.toString()) {
             keyboard?.hide()
             val editablePurchasesList = state.getPurchaseState().purchaseItems
-            recalculateCategory(categoryId = id, categoryTitle = titleValue.value, spentSum = spentSumValue.value, expectSum = expectSumValue.value, editablePurchaseItems = editablePurchasesList)
+            editCategorySafety(categoryId = id, categoryTitle = titleValue.value, spentSum = spentSumValue.value, expectSum = expectSumValue.value, editablePurchaseItems = editablePurchasesList)
             viewModel.execute(CategoriesAction.EditCategories(id, titleValue.value, spentSumValue.value.toDouble(), expectSumValue.value.toDouble()))
         }
     }

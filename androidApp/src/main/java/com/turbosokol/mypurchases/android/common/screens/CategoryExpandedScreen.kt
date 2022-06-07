@@ -22,14 +22,13 @@ import com.turbosokol.mypurchases.android.common.components.AddPurchaseContent
 import com.turbosokol.mypurchases.android.common.components.AppTopBar
 import com.turbosokol.mypurchases.android.common.components.PurchaseColumnItem
 import com.turbosokol.mypurchases.android.common.components.TopBarButtonsType
-import com.turbosokol.mypurchases.android.common.utils.recalculatePurchase
+import com.turbosokol.mypurchases.android.common.utils.deletePurchaseSafety
+import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -54,7 +53,7 @@ fun CategoryExpandedScreen(
     val navigationState = state.getNavigationState()
 
     val expandableList = categoriesState.targetCategory
-    val categoryItems = categoriesState.categoryItems
+    val allCategoryItems = categoriesState.categoryItems
     val currentPurchasesList = purchaseState.purchaseItems
     val appTopBarStateType = navigationState.appTopBarStateType
 
@@ -116,13 +115,13 @@ fun CategoryExpandedScreen(
                         appTopBarStateType = appTopBarStateType,
                         onPurchaseModified = { id, parent, newCoast, description ->
                             //find editable category and edit coast values
-                            recalculatePurchase(
+                            editPurchaseSafety(
                                 id = id,
                                 parent = parent,
                                 oldCoast = item.coast,
                                 newCoast = newCoast,
                                 description = description,
-                                categoryItems = categoryItems
+                                categoryItems = allCategoryItems
                             )
                             viewModel.execute(
                                 NavigationAction.SwitchAppBarStateType(
@@ -131,24 +130,12 @@ fun CategoryExpandedScreen(
                             )
                         },
                         onPurchaseDeleted = {
-                            var editableCategory: CategoriesDb? = null
-                            categoryItems.forEach { category ->
-                                if (category.title == item.parent) {
-                                    editableCategory = category
-                                }
-                            }
-
-                            editableCategory?.let {
-                                viewModel.execute(
-                                    CategoriesAction.EditCategories(
-                                        id = it.id,
-                                        title = it.title,
-                                        spentSum = (it.spentSum - item.coast),
-                                        expectedSum = it.expectedSum
-                                    )
-                                )
-                                viewModel.execute(PurchaseAction.DeletePurchaseById(item.id))
-                            }
+                            deletePurchaseSafety(
+                                id = item.id,
+                                parent = item.parent,
+                                coast = item.coast,
+                                allCategoryItems = allCategoryItems
+                            )
                         }
                     )
                 }
@@ -156,5 +143,4 @@ fun CategoryExpandedScreen(
             }
         }
     }
-
 }

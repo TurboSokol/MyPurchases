@@ -26,13 +26,12 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
-import com.turbosokol.mypurchases.android.common.utils.recalculatePurchase
+import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -189,7 +188,7 @@ fun PurchaseColumnItem(
         if (descriptionValue.value != description || coastValue.value != coast.toString()) {
             keyboard?.hide()
             val allCategories = state.getCategoriesState().categoryItems
-            recalculatePurchase(id = id, parent =  parentTitle, oldCoast = coast, newCoast = coastValue.value.toDouble(), description = descriptionValue.value, categoryItems = allCategories)
+            editPurchaseSafety(id = id, parent =  parentTitle, oldCoast = coast, newCoast = coastValue.value.toDouble(), description = descriptionValue.value, categoryItems = allCategories)
             viewModel.execute(PurchaseAction.EditPurchase(id, parentTitle, coastValue.value.toDouble(), descriptionValue.value))
         }
         viewModel.execute(NavigationAction.CheckChanges(false))
