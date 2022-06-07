@@ -52,8 +52,8 @@ class SqlDataSourceImpl(sqlDriver: SqlDriver) : MyPurchaseDAO {
         return withContext(appDispatcher) { queries.deleteAllCategories() }
     }
 
-    override suspend fun deleteCategoryByTitle(title: String) {
-        return withContext(appDispatcher) { queries.deleteCategoryByTitle(title) }
+    override suspend fun deleteCategoryById(id: Long) {
+        return withContext(appDispatcher) { queries.deleteCategoryByTitle(id) }
     }
 
     //PURCHASES

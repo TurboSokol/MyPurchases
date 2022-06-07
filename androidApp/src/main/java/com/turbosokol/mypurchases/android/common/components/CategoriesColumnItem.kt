@@ -21,10 +21,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
+import com.turbosokol.mypurchases.android.common.utils.recalculateCategory
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
+import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -36,6 +39,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun CategoriesColumnItem(
     viewModel: ReduxViewModel = getViewModel(),
+    id: Long,
     title: String,
     spentSum: Double,
     expectedSum: Double,
@@ -44,7 +48,6 @@ fun CategoriesColumnItem(
     onCategoryManage: (title: String, spentSum: String, expectedSum: String) -> Unit,
     onCategoryClick: () -> Unit
 ) {
-
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val navigationState = state.getNavigationState()
@@ -205,12 +208,14 @@ fun CategoriesColumnItem(
     }
 
     if (checkChanges) {
+        viewModel.execute(PurchaseAction.GetAllPurchasesByParent(title))
         viewModel.execute(NavigationAction.CheckChanges(false))
         if (titleValue.value != title || spentSumValue.value != spentSum.toString() || expectSumValue.value != expectedSum.toString()) {
             keyboard?.hide()
-            onCategoryManage(titleValue.value, spentSumValue.value, expectSumValue.value)
+            val editablePurchasesList = state.getPurchaseState().purchaseItems
+            recalculateCategory(categoryId = id, categoryTitle = titleValue.value, spentSum = spentSumValue.value, expectSum = expectSumValue.value, editablePurchaseItems = editablePurchasesList)
+            viewModel.execute(CategoriesAction.EditCategories(id, titleValue.value, spentSumValue.value.toDouble(), expectSumValue.value.toDouble()))
         }
-
     }
 }
 

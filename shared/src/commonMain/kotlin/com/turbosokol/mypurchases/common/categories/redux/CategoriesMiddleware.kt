@@ -56,8 +56,8 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
                 emit(CategoriesAction.GetAllCategories)
             }
 
-            is CategoriesAction.DeleteCategoryByTitle -> flow {
-                myPurchaseDAO.deleteCategoryByTitle(action.categoryTitle)
+            is CategoriesAction.DeleteCategoryById -> flow {
+                myPurchaseDAO.deleteCategoryById(action.id)
                 emit(CategoriesAction.GetAllCategories)
             }
             else -> emptyFlow()

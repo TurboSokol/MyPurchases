@@ -88,4 +88,4 @@ DELETE FROM categoriesDb;
 
 deleteCategoryByTitle:
 DELETE FROM categoriesDb
-WHERE title = :title;
+WHERE id = :id;

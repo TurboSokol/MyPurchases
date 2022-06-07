@@ -9,7 +9,7 @@ interface MyPurchaseDAO {
     suspend fun insertCategory(title: String, spentSum: Double, expectedSum: Double?)
     suspend fun editCategory(id: Long, title: String, spentSum: Double, expectedSum: Double?)
     suspend fun deleteAllCategories()
-    suspend fun deleteCategoryByTitle(title: String)
+    suspend fun deleteCategoryById(id: Long)
 
     suspend fun getAllPurchases(): List<PurchaseDb>
     suspend fun getAllPurchasesByParent(parentTitle: String): List<PurchaseDb>

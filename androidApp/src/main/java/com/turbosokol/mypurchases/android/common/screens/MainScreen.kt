@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.common.theme.AppTheme.appPaddingMedium8
-import com.turbosokol.mypurchases.android.common.utils.editCategory
+import com.turbosokol.mypurchases.android.common.utils.recalculateCategory
+import com.turbosokol.mypurchases.android.common.utils.recalculatePurchase
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -94,9 +95,9 @@ fun MainScreen(
                 hasOptionsButton = true,
                 onOptionsClick = {
                     if (appTopBarStateType != AppTopBarStateType.DEFAULT) {
-                        viewModel.execute(NavigationAction.CheckChanges(true))
                         viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     }
+
                     if (contentType == ContentType.CATEGORY) {
                         viewModel.execute(NavigationAction.SwitchMainScreenLook(ContentType.PURCHASE))
                     } else if (contentType == ContentType.PURCHASE) {
@@ -181,7 +182,7 @@ fun MainScreen(
                                     )
                                 )
                                 val editablePurchases = purchasesState.purchaseItems
-                                editCategory(
+                                recalculateCategory(
                                     id, title, spentSum, expectSum, editablePurchases
                                 )
                                 viewModel.execute(
@@ -198,8 +199,8 @@ fun MainScreen(
                                     )
                                 )
                                 viewModel.execute(
-                                    CategoriesAction.DeleteCategoryByTitle(
-                                        title
+                                    CategoriesAction.DeleteCategoryById(
+                                        id
                                     )
                                 )
                                 viewModel.execute(
@@ -228,7 +229,8 @@ fun MainScreen(
 
                         editableCategory?.let {
                             viewModel.execute(
-                                CategoriesAction.InsertCategories(
+                                CategoriesAction.EditCategories(
+                                    id = it.id,
                                     title = parent,
                                     spentSum = (it.spentSum - coast),
                                     expectedSum = it.expectedSum
@@ -238,38 +240,15 @@ fun MainScreen(
                         }
                     }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
                         //find editable category and edit coast values
-                        var editableCategory: CategoriesDb? = null
-                        categoryItems.forEach { category ->
-                            if (category.title == parent) {
-                                editableCategory = category
-                            }
-                        }
-
-                        editableCategory?.let { category ->
-                            viewModel.execute(
-                                CategoriesAction.EditCategories(
-                                    id = category.id,
-                                    title = parent,
-                                    spentSum = (category.spentSum - oldCoast + newCoast),
-                                    expectedSum = category.expectedSum
-                                )
-                            )
-                            //Edit purchase
-                            viewModel.execute(
-                                PurchaseAction.EditPurchase(
-                                    id = id,
-                                    parentTitle = parent,
-                                    coast = newCoast,
-                                    description = description
-                                )
-                            )
-
-                            viewModel.execute(
-                                NavigationAction.SwitchAppBarStateType(
-                                    AppTopBarStateType.DEFAULT
-                                )
-                            )
-                        }
+                        recalculatePurchase(
+                            id = id,
+                            parent = parent,
+                            oldCoast = oldCoast,
+                            newCoast = newCoast,
+                            description = description ?: "",
+                            categoryItems = categoryItems
+                        )
+                        viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     }
                 )
             }
@@ -323,6 +302,7 @@ fun MainScreenCategoryContent(
                 LazyColumn(state = scrollState) {
                     itemsIndexed(categoryItems) { index, item ->
                         CategoriesColumnItem(
+                            id = item.id,
                             title = item.title,
                             spentSum = item.spentSum,
                             expectedSum = item.expectedSum,
@@ -373,6 +353,8 @@ fun MainScreenPurchaseContent(
                 LazyColumn(state = scrollState) {
                     itemsIndexed(purchaseItems) { index, item ->
                         PurchaseColumnItem(
+                            id = item.id,
+                            parentTitle = item.parent,
                             coast = item.coast,
                             description = item.description ?: "",
                             keyboard = keyboard,
@@ -380,10 +362,10 @@ fun MainScreenPurchaseContent(
                             onPurchaseDeleted = {
                                 onPurchaseDeleted(item.id, item.parent, item.coast)
                             },
-                            onPurchaseModified = { coast, description ->
+                            onPurchaseModified = { id, parent, newCoast, description ->
                                 onPurchaseModified(
                                     item.id, item.parent, item.coast,
-                                    coast, description
+                                    newCoast, description
                                 )
                             }
                         )

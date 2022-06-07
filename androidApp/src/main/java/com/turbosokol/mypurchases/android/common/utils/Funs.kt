@@ -1,10 +1,17 @@
 package com.turbosokol.mypurchases.android.common.utils
 
+import androidx.compose.runtime.collectAsState
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
+import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
+import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import comturbosokolmypurchases.CategoriesDb
 import comturbosokolmypurchases.PurchaseDb
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.getViewModel
 import org.koin.java.KoinJavaComponent.inject
 import kotlin.time.ExperimentalTime
 
@@ -57,8 +64,9 @@ fun manageOrAddCategory(
     }
 }
 
+
 @ExperimentalTime
-fun editCategory(
+fun recalculateCategory(
     categoryId: Long,
     categoryTitle: String,
     spentSum: String,
@@ -78,6 +86,42 @@ fun editCategory(
 
     editablePurchaseItems.forEach {
         viewModel.execute(PurchaseAction.EditPurchase(it.id, categoryTitle, it.coast, it.description))
+    }
+
+}
+
+
+@ExperimentalTime
+fun recalculatePurchase(id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String, categoryItems: List<CategoriesDb>) {
+    val viewModel: ReduxViewModel by inject(ReduxViewModel::class.java)
+
+    var editableCategory: CategoriesDb? = null
+    categoryItems.forEach { category ->
+        if (category.title == parent) {
+            editableCategory = category
+        }
+    }
+
+    editableCategory?.let { category ->
+        viewModel.execute(
+            CategoriesAction.EditCategories(
+                id = category.id,
+                title = parent,
+                spentSum = (category.spentSum - oldCoast + newCoast),
+                expectedSum = category.expectedSum
+            )
+        )
+        //Edit purchase
+        viewModel.execute(
+            PurchaseAction.EditPurchase(
+                id = id,
+                parentTitle = parent,
+                coast = newCoast,
+                description = description
+            )
+        )
+
+
     }
 
 }
