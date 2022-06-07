@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
+import com.turbosokol.mypurchases.android.common.utils.manageOrAddCategorySafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
+import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.CategoriesDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
@@ -55,15 +55,21 @@ fun AddPurchaseContent(
     viewModel: ReduxViewModel = getViewModel(),
     keyboard: SoftwareKeyboardController?
 ) {
-
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
+    val purchasesState = state.getPurchaseState()
+    val navigationState = state.getNavigationState()
     val allCategories = categoriesState.categoryItems
+    val editablePurchase = purchasesState.editablePurchase
+    val appTopBarStateType = navigationState.appTopBarStateType
 
-    val categoryTitleValue = remember { mutableStateOf("") }
-    val coastValue = remember { mutableStateOf("") }
-    val descriptionValue = remember { mutableStateOf("") }
+    val categoryTitleValue =
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.parent else "") }
+    val coastValue =
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.coast.toString() else "") }
+    val descriptionValue =
+        remember { mutableStateOf(if (appTopBarStateType == AppTopBarStateType.EDIT) editablePurchase.description.toString() else "") }
     val keyboard = LocalSoftwareKeyboardController.current
     val localContext = LocalContext.current
 
@@ -73,6 +79,8 @@ fun AddPurchaseContent(
             .padding(12.dp), elevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
+
+            // PARENT CATEGORY
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -84,6 +92,7 @@ fun AddPurchaseContent(
                 TextFieldWithHint(
                     modifier = Modifier
                         .padding(start = 8.dp),
+                    textFieldValue = categoryTitleValue.value,
                     hintList = allCategories,
                     hasTitle = true,
                     titleText = stringResource(R.string.add_category_text),
@@ -96,6 +105,7 @@ fun AddPurchaseContent(
                 }
             }
 
+            // COAST
             Row(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -125,6 +135,7 @@ fun AddPurchaseContent(
                 )
             }
 
+            // DESCRIPTION OF PURCHASE
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -157,57 +168,62 @@ fun AddPurchaseContent(
                 elevation = ButtonDefaults.buttonElevation(AppTheme.appButtonElevation),
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 onClick = {
-                    if (coastValue.value.isNullOrEmpty()) {
-                        Toast.makeText(localContext, "Please enter Coast", Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        viewModel.execute(
-                            PurchaseAction.AddPurchase(
-                                parentTitle = categoryTitleValue.value,
-                                coast = coastValue.value.toDouble(),
-                                description = descriptionValue.value
-                            )
-                        )
-
-                        var targetCategory: CategoriesDb? = null
-                        allCategories.forEach { category ->
-                            if (category.title == categoryTitleValue.value) {
-                                targetCategory = category
-                            }
-                        }
-                        targetCategory?.let {
-                            //when user didn't specify expect sum in category
-                            if (it.expectedSum == it.spentSum) {
-                                viewModel.execute(
-                                    CategoriesAction.AddCategories(
-                                        title = categoryTitleValue.value,
-                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
-                                        expectedSum = (coastValue.value.toDouble() + (it.expectedSum))
-                                    )
+                    when (appTopBarStateType) {
+                        AppTopBarStateType.DEFAULT -> {
+                            if (coastValue.value.isEmpty()) {
+                                Toast.makeText(
+                                    localContext,
+                                    "Please enter Coast",
+                                    Toast.LENGTH_SHORT
                                 )
+                                    .show()
                             } else {
-                                //if user specify expect sum - expect sum holds
                                 viewModel.execute(
-                                    CategoriesAction.AddCategories(
-                                        title = categoryTitleValue.value,
-                                        spentSum = (coastValue.value.toDouble() + it.spentSum),
-                                        expectedSum = it.expectedSum
+                                    PurchaseAction.AddPurchase(
+                                        parentTitle = categoryTitleValue.value,
+                                        coast = coastValue.value.toDouble(),
+                                        description = descriptionValue.value
                                     )
+                                )
+                                // Find categories with same title and update it or create new one
+                                manageOrAddCategorySafety(
+                                    allCategories = allCategories,
+                                    categoryTitle = categoryTitleValue.value,
+                                    spentSum = coastValue.value
                                 )
                             }
                         }
-                    } ?: run {
-                        //if category with added title doesn't create yet
-                        viewModel.execute(
-                            CategoriesAction.AddCategories(
-                                title = categoryTitleValue.value,
-                                spentSum = coastValue.value.toDouble(),
-                                expectedSum = coastValue.value.toDouble()
-                            )
-                        )
+
+                        AppTopBarStateType.EDIT -> {
+                            if (coastValue.value.isEmpty()) {
+                                Toast.makeText(
+                                    localContext,
+                                    "Please enter Coast",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            } else {
+                                viewModel.execute(
+                                    PurchaseAction.EditPurchase(
+                                        id = editablePurchase.id,
+                                        parentTitle = categoryTitleValue.value,
+                                        coast = coastValue.value.toDouble(),
+                                        description = descriptionValue.value
+                                    )
+                                )
+                                // Find categories with same title and update it or create new one
+                                manageOrAddCategorySafety(
+                                    allCategories = allCategories,
+                                    categoryTitle = categoryTitleValue.value,
+                                    spentSum = coastValue.value
+                                )
+                            }
+                        }
+                        else -> {}
                     }
 
                     viewModel.execute(NavigationAction.HideAddContent())
+
                 }
             ) {
                 Image(

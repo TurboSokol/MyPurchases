@@ -20,13 +20,14 @@ data class PurchaseState(
             purchaseId = 0.0,
             coast = 0.0,
             description = null,
-            editablePurchase = PurchaseDb(id = 0L, parent = "", coast = 0.0, title = "")
+            editablePurchase = PurchaseDb(id = 0L, parent = "", coast = 0.0, description = "")
         )
     }
 }
 
 sealed class PurchaseAction: Action {
     data class AddPurchase(val parentTitle: String, val coast: Double, val description: String? = null): PurchaseAction()
+    data class EditPurchase(val id: Long, val parentTitle: String, val coast: Double, val description: String? = null): PurchaseAction()
     object GetAllPurchases: PurchaseAction()
     data class GetAllPurchasesByParent(val parentTitle: String): PurchaseAction()
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()

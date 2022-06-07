@@ -48,7 +48,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.7.0")
 
     //Compose
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.compose.ui:ui:${Versions.compose}")
     implementation("androidx.compose.material:material:${Versions.compose}")
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
@@ -57,8 +57,10 @@ dependencies {
     implementation("androidx.compose.ui:ui-util:${Versions.compose}")
     implementation("androidx.constraintlayout:constraintlayout:${Versions.constraint_layout}")
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraint_layout_compose}")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha11")
-    implementation("androidx.compose.material3:material3-window-size-class:1.0.0-alpha11")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha12")
+    implementation("androidx.compose.material3:material3-window-size-class:1.0.0-alpha12")
+    implementation ("androidx.compose.animation:animation-graphics:1.1.1")
+
 
 
     //ACCOMPANIST
