@@ -3,6 +3,7 @@ package com.turbosokol.mypurchases.android.common.theme
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
@@ -19,6 +20,7 @@ object AppTheme {
     val appPaddingHorizontal4: Dp = 4.dp
     val appPaddingSmall3: Dp = 3.dp
     val appPaddingNano1: Dp = 1.dp
+    val appSheetShape: RoundedCornerShape = RoundedCornerShape(8.dp)
 }
 
 

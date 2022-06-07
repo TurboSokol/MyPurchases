@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.common.theme.AppTheme.appPaddingMedium8
+import com.turbosokol.mypurchases.android.common.theme.AppTheme.appSheetShape
 import com.turbosokol.mypurchases.android.common.utils.deletePurchaseSafety
 import com.turbosokol.mypurchases.android.common.utils.editCategorySafety
 import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
@@ -138,13 +139,13 @@ fun MainScreen(
         scaffoldState = bottomSheetState,
         sheetGesturesEnabled = true,
         sheetPeekHeight = 0.dp,
-        sheetShape = RoundedCornerShape(8.dp),
+        sheetShape = appSheetShape,
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             if (bottomSheetState.bottomSheetState.isCollapsed) {
                 Row(
                     modifier = Modifier
-                        .padding(start = 8.dp, end = 8.dp, bottom = 48.dp),
+                        .padding(start = appPaddingMedium8, end = appPaddingMedium8, bottom = 48.dp),
                     verticalAlignment = Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
