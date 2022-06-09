@@ -8,4 +8,6 @@
     <string name="add_title_text">"Title: "</string>
     <string name="add_coast_text">"Coast: "</string>
     <string name="add_expect_sum_text">"Expect Sum: "</string>
+    <string name="empty_coast_toast">Please enter Coast</string>
+    <string name="enter_title_toast">Please enter Title</string>
 </resources>

@@ -30,11 +30,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
     val navController = rememberAnimatedNavController()
-    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
-    val state by stateFlow.collectAsState(Dispatchers.Main)
-    val categoriesState = state.getCategoriesState()
     val startDestination = MAIN_SCREEN_ROTE
-
 
     AnimatedNavHost(navController = navController, startDestination = startDestination) {
         composable(MAIN_SCREEN_ROTE) {

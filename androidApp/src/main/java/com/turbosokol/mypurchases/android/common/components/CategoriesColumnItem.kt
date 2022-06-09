@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
+import com.turbosokol.mypurchases.android.common.theme.MyPrimary
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
 import com.turbosokol.mypurchases.android.common.utils.editCategorySafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
@@ -54,9 +56,17 @@ fun CategoriesColumnItem(
 
     val checkChanges = navigationState.checkChanges
 
-    val titleValue = remember { mutableStateOf(title) }
-    val spentSumValue = remember { mutableStateOf(spentSum.toString()) }
-    val expectSumValue = remember { mutableStateOf(expectedSum.toString()) }
+    var titleValue by remember {
+        mutableStateOf(title)
+    }
+    val spentSumValue = remember {
+        mutableStateOf("")
+    }
+    spentSumValue.value = spentSum.toString()
+
+    var expectSumValue by remember {
+        mutableStateOf(expectedSum.toString())
+    }
 
     val animationTransition = rememberInfiniteTransition()
     val animationElevation by animationTransition.animateValue(
@@ -93,9 +103,9 @@ fun CategoriesColumnItem(
                     onCategoryClick()
                 } else {
                     onCategoryManage(
-                        titleValue.value,
+                        titleValue,
                         spentSumValue.value,
-                        expectSumValue.value
+                        expectSumValue
                     )
                 }
             },
@@ -133,10 +143,10 @@ fun CategoriesColumnItem(
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         keyboard?.hide()
-                        onCategoryManage(titleValue.value, spentSumValue.value, expectSumValue.value)
-                    }), value = titleValue.value,
+                        onCategoryManage(titleValue, spentSumValue.value, expectSumValue)
+                    }), value = titleValue,
                     enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
-                    onValueChange = { titleValue.value = it })
+                    onValueChange = { titleValue = it })
             }
             //Spent Sum
             Card(
@@ -145,6 +155,8 @@ fun CategoriesColumnItem(
                     .border(
                         if (appTopBarStateType == AppTopBarStateType.EDIT) {
                             animatedBorder
+                        } else if (spentSum > expectedSum) {
+                            BorderStroke(2.dp, MyPrimary)
                         } else {
                             AppTheme.appBorderStroke
                         }
@@ -161,11 +173,11 @@ fun CategoriesColumnItem(
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         keyboard?.hide()
-                        onCategoryManage(titleValue.value, spentSumValue.value, expectSumValue.value)
+                        onCategoryManage(titleValue, spentSumValue.value, expectSumValue)
                     }),
                     value = spentSumValue.value,
                     enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
-                    onValueChange = { text ->
+                    onValueChange = { text: String ->
                         val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
                         spentSumValue.value = validateRegexPattern.find(text)?.value.toString()
                     }
@@ -178,6 +190,8 @@ fun CategoriesColumnItem(
                     .border(
                         if (appTopBarStateType == AppTopBarStateType.EDIT) {
                             animatedBorder
+                        } else if (spentSum > expectedSum) {
+                            BorderStroke(2.dp, MyPrimary)
                         } else {
                             AppTheme.appBorderStroke
                         }
@@ -194,13 +208,13 @@ fun CategoriesColumnItem(
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         keyboard?.hide()
-                        onCategoryManage(titleValue.value, spentSumValue.value, expectSumValue.value)
+                        onCategoryManage(titleValue, spentSumValue.value, expectSumValue)
                     }),
-                    value = expectSumValue.value,
+                    value = expectSumValue,
                     enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
                     onValueChange = { text ->
                         val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
-                        expectSumValue.value = validateRegexPattern.find(text)?.value.toString()
+                        expectSumValue = validateRegexPattern.find(text)?.value.toString()
                     }
                 )
             }
@@ -210,11 +224,24 @@ fun CategoriesColumnItem(
     if (checkChanges) {
         viewModel.execute(PurchaseAction.GetAllPurchasesByParent(title))
         viewModel.execute(NavigationAction.CheckChanges(false))
-        if (titleValue.value != title || spentSumValue.value != spentSum.toString() || expectSumValue.value != expectedSum.toString()) {
+        if (titleValue != title || spentSumValue.value != spentSum.toString() || expectSumValue != expectedSum.toString()) {
             keyboard?.hide()
             val editablePurchasesList = state.getPurchaseState().purchaseItems
-            editCategorySafety(categoryId = id, categoryTitle = titleValue.value, spentSum = spentSumValue.value, expectSum = expectSumValue.value, editablePurchaseItems = editablePurchasesList)
-            viewModel.execute(CategoriesAction.EditCategories(id, titleValue.value, spentSumValue.value.toDouble(), expectSumValue.value.toDouble()))
+            editCategorySafety(
+                categoryId = id,
+                categoryTitle = titleValue,
+                spentSum = spentSumValue.value,
+                expectSum = expectSumValue,
+                editablePurchaseItems = editablePurchasesList
+            )
+            viewModel.execute(
+                CategoriesAction.EditCategories(
+                    id,
+                    titleValue,
+                    spentSumValue.value.toDouble(),
+                    expectSumValue.toDouble()
+                )
+            )
         }
     }
 }

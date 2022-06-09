@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
+import androidx.compose.ui.res.stringResource as stringResource
 
 
 @ExperimentalMaterial3Api
@@ -173,7 +173,7 @@ fun AddPurchaseContent(
                             if (coastValue.value.isEmpty()) {
                                 Toast.makeText(
                                     localContext,
-                                    "Please enter Coast",
+                                    R.string.empty_coast_toast,
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()

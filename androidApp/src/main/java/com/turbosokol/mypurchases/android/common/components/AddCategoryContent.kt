@@ -47,11 +47,6 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: SoftwareKeyboardController?) {
 
-    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
-    val state by stateFlow.collectAsState(Dispatchers.Main)
-    val categoriesState = state.getCategoriesState()
-    val allCategories = categoriesState.categoryItems
-
     val titleValue = remember { mutableStateOf("") }
     val expectSumValue = remember { mutableStateOf("") }
 
@@ -127,7 +122,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                 colors = ButtonDefaults.buttonColors(MyPrimary),
                 onClick = {
                     if (titleValue.value.isNullOrEmpty()) {
-                        Toast.makeText(localContext, "Please enter Title", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(localContext, R.string.enter_title_toast, Toast.LENGTH_SHORT).show()
                     } else {
                         viewModel.execute(
                             CategoriesAction.InsertCategories(
@@ -137,6 +132,8 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                             )
                         )
                         viewModel.execute(NavigationAction.HideAddContent())
+                        titleValue.value = ""
+                        expectSumValue.value = ""
                     }
                 }
             ) {

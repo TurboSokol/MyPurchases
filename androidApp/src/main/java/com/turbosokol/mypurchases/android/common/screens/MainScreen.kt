@@ -65,7 +65,7 @@ fun MainScreen(
     viewModel.execute(PurchaseAction.GetAllPurchases)
 
     val allCategoryItems = categoriesState.categoryItems.reversed()
-    val purchaseItems = purchasesState.purchaseItems
+    val allPurchaseItems = purchasesState.purchaseItems
 
     val showAddSContent = navigationState.showAddContent
     val addButtonContentType = navigationState.addButtonType
@@ -174,7 +174,9 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (contentType == ContentType.CATEGORY) {
-                MainScreenCategoryContent(allCategoryItems, keyboard, appTopBarStateType,
+                MainScreenCategoryContent(
+//                    allCategoryItems,
+                    keyboard = keyboard, appTopBarStateType = appTopBarStateType,
                     onCategoryManage = { id, title, oldTitle, spentSum, expectSum ->
                         when (appTopBarStateType) {
                             AppTopBarStateType.EDIT -> {
@@ -215,12 +217,12 @@ fun MainScreen(
                             else -> {}
                         }
                     },
-                    onCategoryClick = {
+                    onCategoryClick = { categoryId ->
                         // IMPLEMENTED in navigation
-                        onCategoryClick(it)
+                        onCategoryClick(categoryId)
                     })
             } else {
-                MainScreenPurchaseContent(purchaseItems, keyboard, appTopBarStateType,
+                MainScreenPurchaseContent(allPurchaseItems, keyboard, appTopBarStateType,
                     onPurchaseDeleted = { id, parent, coast ->
                         deletePurchaseSafety(id = id, parent = parent, coast = coast, allCategoryItems = allCategoryItems)
                     }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
@@ -247,12 +249,17 @@ fun MainScreen(
 @ExperimentalComposeUiApi
 @Composable
 fun MainScreenCategoryContent(
-    categoryItems: List<CategoriesDb>,
+    viewModel: ReduxViewModel = getViewModel(),
     keyboard: SoftwareKeyboardController?,
     appTopBarStateType: AppTopBarStateType,
     onCategoryManage: (id: Long, title: String, oldTitle: String, spentSum: String, expectSum: String) -> Unit,
     onCategoryClick: (Long) -> Unit
 ) {
+    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
+    val state by stateFlow.collectAsState(Dispatchers.Main)
+    val categoryState = state.getCategoriesState()
+    val categoryItems = categoryState.categoryItems
+
     val scrollState = rememberLazyListState()
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -318,6 +325,7 @@ fun MainScreenPurchaseContent(
     onPurchaseDeleted: (id: Long, parent: String, coast: Double) -> Unit,
     onPurchaseModified: (id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String?) -> Unit
 ) {
+
     val scrollState = rememberLazyListState()
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(

@@ -29,6 +29,7 @@ import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.ContentType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
+import comturbosokolmypurchases.PurchaseDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 @Composable
 fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
-    navController: NavController
+    navController: NavController,
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -54,11 +55,18 @@ fun CategoryExpandedScreen(
     val navigationState = state.getNavigationState()
 
     val expandableList = categoriesState.targetCategory
+    val allPurchases = purchaseState.purchaseItems
+
     val allCategoryItems = categoriesState.categoryItems
-    val currentPurchasesList = purchaseState.purchaseItems
     val appTopBarStateType = navigationState.appTopBarStateType
 
-    viewModel.execute(PurchaseAction.GetAllPurchasesByParent(expandableList.title))
+    val currentPurchasesList: MutableList<PurchaseDb> = mutableListOf()
+    allPurchases.forEach { purchase ->
+        if (purchase.parent == expandableList.title) {
+            currentPurchasesList.add(purchase)
+        }
+    }
+
     val keyboard = LocalSoftwareKeyboardController.current
     val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
