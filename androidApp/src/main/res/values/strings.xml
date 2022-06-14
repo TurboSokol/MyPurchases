@@ -10,4 +10,10 @@
     <string name="add_expect_sum_text">"Expect Sum: "</string>
     <string name="empty_coast_toast">Please enter Coast</string>
     <string name="enter_title_toast">Please enter Title</string>
+    <string name="add_new_purchase_hint">"You haven't purchases yet"</string>
+    <string name="add_new_category_hint">"You haven't plans yet"</string>
+    <string name="expect_sum_text">Expect Sum</string>
+    <string name="spent_sum_text">Spent Sum</string>
+    <string name="coast_text">Coast</string>
+    <string name="title_text">Title</string>
 </resources>

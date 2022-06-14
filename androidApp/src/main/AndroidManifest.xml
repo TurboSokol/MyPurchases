@@ -8,7 +8,8 @@
         android:name=".MyPurchasesApplication"
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:roundIcon="@mipmap/ic_launcher_round">
         <activity
             android:name=".common.MainActivity"
             android:exported="true"

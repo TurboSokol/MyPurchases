@@ -13,9 +13,9 @@ data class NavigationState(
 
     companion object {
         fun getDefault(): NavigationState = NavigationState(
-            addButtonType = ContentType.PURCHASE,
+            addButtonType = ContentType.Purchases,
             showAddContent = false,
-            contentType = ContentType.CATEGORY,
+            contentType = ContentType.Categories,
             appTopBarStateType = AppTopBarStateType.DEFAULT,
             checkChanges = false
         )
@@ -31,8 +31,8 @@ sealed class NavigationAction : Action {
 }
 
 enum class ContentType {
-    PURCHASE,
-    CATEGORY
+    Purchases,
+    Categories
 }
 
 enum class AppTopBarStateType {

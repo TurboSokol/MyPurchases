@@ -38,10 +38,10 @@ fun AddButton(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val title = when (contentType) {
-                ContentType.PURCHASE -> {
+                ContentType.Purchases -> {
                     stringResource(R.string.new_purchase_button)
                 }
-                ContentType.CATEGORY -> {
+                ContentType.Categories -> {
                     stringResource(R.string.new_category_button)
                 }
                 else -> {

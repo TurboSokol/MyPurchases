@@ -16,7 +16,7 @@ data class PurchaseState(
 
     companion object {
         fun getDefault(): PurchaseState = PurchaseState(
-            progress = false,
+            progress = true,
             purchaseItems = emptyList(),
             purchaseId = 0.0,
             coast = 0.0,
@@ -34,7 +34,7 @@ sealed class PurchaseAction: Action {
     data class GetAllPurchasesByParent(val parentTitle: String): PurchaseAction()
     data class SetCategoryPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
-    data class GetPurchase(val purchaseId: Long): PurchaseAction()
+    data class GetEditablePurchase(val purchaseId: Long): PurchaseAction()
     data class SetEditablePurchase(val editablePurchase: PurchaseDb): PurchaseAction()
     data class DeletePurchaseById(val purchaseId: Long): PurchaseAction()
     data class DeleteAllPurchasesByParent(val parentTitle: String): PurchaseAction()
