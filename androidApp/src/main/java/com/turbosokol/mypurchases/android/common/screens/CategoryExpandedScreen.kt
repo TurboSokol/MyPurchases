@@ -24,7 +24,6 @@ import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.ContentType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
-import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -44,7 +43,6 @@ fun CategoryExpandedScreen(
     navController: NavController,
     categoryTitle: String
 ) {
-    viewModel.execute(PurchaseAction.GetAllPurchasesByParent(categoryTitle))
 
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -113,7 +111,7 @@ fun CategoryExpandedScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     AddButton(
-                        contentType = ContentType.PURCHASE
+                        contentType = ContentType.Purchases
                     ) {
                         coroutineScope.launch {
                             bottomSheetState.bottomSheetState.expand()

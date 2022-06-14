@@ -1,12 +1,10 @@
 package com.turbosokol.mypurchases.common.purchases.redux
 
 import com.turbosokol.mypurchases.common.app.AppState
-import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.core.redux.Action
 import com.turbosokol.mypurchases.core.redux.Effect
 import com.turbosokol.mypurchases.core.redux.Middleware
 import com.turbosokol.mypurchases.core.repository.local.MyPurchaseDAO
-import comturbosokolmypurchases.PurchaseDb
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -45,7 +43,7 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
                 emit(PurchaseAction.SetPurchases(data))
             }
 
-            is PurchaseAction.GetPurchase -> flow {
+            is PurchaseAction.GetEditablePurchase -> flow {
                 val data = myPurchaseDAO.getPurchaseById(action.purchaseId)
                 data?.let {
                     emit(PurchaseAction.SetEditablePurchase(it))

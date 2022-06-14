@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -19,9 +18,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.components.*
 import com.turbosokol.mypurchases.android.common.theme.AppTheme.appPaddingMedium8
 import com.turbosokol.mypurchases.android.common.theme.AppTheme.appSheetShape
@@ -33,7 +34,6 @@ import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.*
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.CategoriesDb
 import comturbosokolmypurchases.PurchaseDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -91,7 +91,7 @@ fun MainScreen(
     BottomSheetScaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             AppTopBar(
-                title = MAIN_SCREEN_ROTE,
+                title = contentType.toString(),
                 hasBackButton = false,
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = true,
@@ -100,10 +100,10 @@ fun MainScreen(
                         viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     }
 
-                    if (contentType == ContentType.CATEGORY) {
-                        viewModel.execute(NavigationAction.SwitchMainScreenLook(ContentType.PURCHASE))
-                    } else if (contentType == ContentType.PURCHASE) {
-                        viewModel.execute(NavigationAction.SwitchMainScreenLook(ContentType.CATEGORY))
+                    if (contentType == ContentType.Categories) {
+                        viewModel.execute(NavigationAction.SwitchMainScreenLook(ContentType.Purchases))
+                    } else if (contentType == ContentType.Purchases) {
+                        viewModel.execute(NavigationAction.SwitchMainScreenLook(ContentType.Categories))
                     }
                 },
                 hasSubRightButton = true,
@@ -128,10 +128,10 @@ fun MainScreen(
         },
         sheetContent = {
             when (addButtonContentType) {
-                ContentType.PURCHASE -> {
+                ContentType.Purchases -> {
                     AddPurchaseContent(keyboard = keyboard)
                 }
-                ContentType.CATEGORY -> {
+                ContentType.Categories -> {
                     AddCategoryContent(keyboard = keyboard)
                 }
             }
@@ -150,7 +150,7 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     AddButton(
-                        contentType = ContentType.PURCHASE
+                        contentType = ContentType.Purchases
                     ) {
                         coroutineScope.launch {
                             bottomSheetState.bottomSheetState.expand()
@@ -158,7 +158,7 @@ fun MainScreen(
                     }
                     Spacer(modifier = Modifier.weight(1F))
                     AddButton(
-                        contentType = ContentType.CATEGORY
+                        contentType = ContentType.Categories
                     ) {
                         coroutineScope.launch {
                             bottomSheetState.bottomSheetState.expand()
@@ -173,7 +173,7 @@ fun MainScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (contentType == ContentType.CATEGORY) {
+            if (contentType == ContentType.Categories) {
                 MainScreenCategoryContent(
 //                    allCategoryItems,
                     keyboard = keyboard, appTopBarStateType = appTopBarStateType,
@@ -222,7 +222,7 @@ fun MainScreen(
                         onCategoryClick(categoryId, categoryTitle)
                     })
             } else {
-                MainScreenPurchaseContent(allPurchaseItems, keyboard, appTopBarStateType,
+                MainScreenPurchaseContent(purchaseItems = allPurchaseItems, keyboard = keyboard, appTopBarStateType = appTopBarStateType,
                     onPurchaseDeleted = { id, parent, coast ->
                         deletePurchaseSafety(id = id, parent = parent, coast = coast, allCategoryItems = allCategoryItems)
                     }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
@@ -275,42 +275,50 @@ fun MainScreenCategoryContent(
             Text(
                 modifier = Modifier.weight(0.25F),
                 textAlign = TextAlign.Center,
-                text = "Spent Sum"
+                text = stringResource(R.string.spent_sum_text)
             )
             Text(
                 modifier = Modifier.weight(0.25F),
                 textAlign = TextAlign.Center,
-                text = "Expect Sum"
+                text = stringResource(R.string.expect_sum_text)
             )
         }
 
-        if (categoryItems.isEmpty()) {
+        if (categoryState.progress) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
                 CircularProgressIndicator()
             }
-        } else {
+        }
+        else {
+            if (categoryItems.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
+                    Text(text = stringResource(R.string.add_new_category_hint))
+                }
+            } else {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                LazyColumn(state = scrollState) {
-                    itemsIndexed(categoryItems) { index, item ->
-                        CategoriesColumnItem(
-                            id = item.id,
-                            title = item.title,
-                            spentSum = item.spentSum,
-                            expectedSum = item.expectedSum,
-                            keyboard = keyboard,
-                            appTopBarStateType = appTopBarStateType,
-                            onCategoryManage = { title, spentSum, expectedSum ->
-                                onCategoryManage(item.id, title, item.title, spentSum, expectedSum)
-                            },
-                            onCategoryClick = {
-                                onCategoryClick(item.id, item.title)
-                            }
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LazyColumn(state = scrollState) {
+                        itemsIndexed(categoryItems) { index, item ->
+                            CategoriesColumnItem(
+                                id = item.id,
+                                title = item.title,
+                                spentSum = item.spentSum,
+                                expectedSum = item.expectedSum,
+                                keyboard = keyboard,
+                                appTopBarStateType = appTopBarStateType,
+                                onCategoryManage = { title, spentSum, expectedSum ->
+                                    onCategoryManage(item.id, title, item.title, spentSum, expectedSum)
+                                },
+                                onCategoryClick = {
+                                    onCategoryClick(item.id, item.title)
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
+
     }
 }
 
@@ -319,12 +327,16 @@ fun MainScreenCategoryContent(
 @ExperimentalComposeUiApi
 @Composable
 fun MainScreenPurchaseContent(
+    viewModel: ReduxViewModel = getViewModel(),
     purchaseItems: List<PurchaseDb>,
     keyboard: SoftwareKeyboardController?,
     appTopBarStateType: AppTopBarStateType,
     onPurchaseDeleted: (id: Long, parent: String, coast: Double) -> Unit,
     onPurchaseModified: (id: Long, parent: String, oldCoast: Double, newCoast: Double, description: String?) -> Unit
 ) {
+    val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
+    val state by stateFlow.collectAsState(Dispatchers.Main)
+    val purchaseState = state.getPurchaseState()
 
     val scrollState = rememberLazyListState()
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -333,35 +345,47 @@ fun MainScreenPurchaseContent(
                 .padding(appPaddingMedium8),
             verticalAlignment = CenterVertically
         ) {
-            Text(modifier = Modifier.weight(0.4F), textAlign = TextAlign.Center, text = "Coast")
-            Text(modifier = Modifier.weight(0.6F), textAlign = TextAlign.Center, text = "Title")
+            Text(modifier = Modifier.weight(0.4F), textAlign = TextAlign.Center, text = stringResource(
+                            R.string.coast_text)
+                        )
+            Text(modifier = Modifier.weight(0.6F), textAlign = TextAlign.Center, text = stringResource(
+                            R.string.title_text)
+                        )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (purchaseItems.isEmpty()) {
+            if (purchaseState.progress) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
                     CircularProgressIndicator()
                 }
+
+
             } else {
-                LazyColumn(state = scrollState) {
-                    itemsIndexed(purchaseItems) { index, item ->
-                        PurchaseColumnItem(
-                            id = item.id,
-                            parentTitle = item.parent,
-                            coast = item.coast,
-                            description = item.description ?: "",
-                            keyboard = keyboard,
-                            appTopBarStateType = appTopBarStateType,
-                            onPurchaseDeleted = {
-                                onPurchaseDeleted(item.id, item.parent, item.coast)
-                            },
-                            onPurchaseModified = { id, parent, newCoast, description ->
-                                onPurchaseModified(
-                                    item.id, item.parent, item.coast,
-                                    newCoast, description
-                                )
-                            }
-                        )
+                if (purchaseItems.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
+                        Text(text = stringResource(R.string.add_new_purchase_hint))
+                    }
+                } else {
+                    LazyColumn(state = scrollState) {
+                        itemsIndexed(purchaseItems) { index, item ->
+                            PurchaseColumnItem(
+                                id = item.id,
+                                parentTitle = item.parent,
+                                coast = item.coast,
+                                description = item.description ?: "",
+                                keyboard = keyboard,
+                                appTopBarStateType = appTopBarStateType,
+                                onPurchaseDeleted = {
+                                    onPurchaseDeleted(item.id, item.parent, item.coast)
+                                },
+                                onPurchaseModified = { id, parent, newCoast, description ->
+                                    onPurchaseModified(
+                                        item.id, item.parent, item.coast,
+                                        newCoast, description
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
