@@ -9,11 +9,12 @@ class PurchaseReducer : Reducer<PurchaseState> {
             is PurchaseAction.SetEditablePurchase -> {
                 oldState.copy(editablePurchase = action.editablePurchase)
             }
-
+            is PurchaseAction.SetCategoryPurchases -> {
+                oldState.copy(categoryPurchases = action.purchaseItems)
+            }
             is PurchaseAction.SetPurchases -> {
                 oldState.copy(purchaseItems = action.purchaseItems)
             }
-
             else -> oldState
         }
     }

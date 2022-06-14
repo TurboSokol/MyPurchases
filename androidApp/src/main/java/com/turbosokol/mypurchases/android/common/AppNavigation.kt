@@ -7,7 +7,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -36,15 +38,17 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
         composable(MAIN_SCREEN_ROTE) {
             MainScreen(
                 navController = navController,
-                onCategoryClick = { id ->
+                onCategoryClick = { id, categoryTitle ->
+                    viewModel.execute(PurchaseAction.GetAllPurchasesByParent(categoryTitle))
                     viewModel.execute(CategoriesAction.GetCategory(id))
-                    navController.navigate(CATEGORIES_EXPANDED_VIEW_ROUTE)
+                    navController.navigate("${CATEGORIES_EXPANDED_VIEW_ROUTE}/$categoryTitle")
                 }
             )
         }
 
-        composable(CATEGORIES_EXPANDED_VIEW_ROUTE) {
-            CategoryExpandedScreen(navController = navController)
+        composable(route = "$CATEGORIES_EXPANDED_VIEW_ROUTE/{categoryTitle}") { backStackEntry ->
+            val categoryTitle = backStackEntry.arguments?.getString("categoryTitle") ?: ""
+            CategoryExpandedScreen(navController = navController, categoryTitle = categoryTitle)
 
         }
     }
