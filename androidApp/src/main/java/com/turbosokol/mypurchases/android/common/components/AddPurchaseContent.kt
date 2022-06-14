@@ -221,7 +221,9 @@ fun AddPurchaseContent(
                         }
                         else -> {}
                     }
-
+                    categoryTitleValue.value = ""
+                    coastValue.value = ""
+                    descriptionValue.value = ""
                     viewModel.execute(NavigationAction.HideAddContent())
 
                 }

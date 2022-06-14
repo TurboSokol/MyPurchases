@@ -37,7 +37,7 @@ class PurchaseMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middleware<
 
             is PurchaseAction.GetAllPurchasesByParent -> flow {
                 val data = myPurchaseDAO.getAllPurchasesByParent(action.parentTitle)
-                emit(PurchaseAction.SetPurchases(data))
+                emit(PurchaseAction.SetCategoryPurchases(data))
             }
 
             is PurchaseAction.GetAllPurchases -> flow {

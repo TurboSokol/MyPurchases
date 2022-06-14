@@ -53,7 +53,7 @@ const val MAIN_SCREEN_ROTE = "Main Screen"
 fun MainScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    onCategoryClick: (Long) -> Unit
+    onCategoryClick: (categoryId: Long, categoryTitle: String) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -217,9 +217,9 @@ fun MainScreen(
                             else -> {}
                         }
                     },
-                    onCategoryClick = { categoryId ->
+                    onCategoryClick = { categoryId, categoryTitle ->
                         // IMPLEMENTED in navigation
-                        onCategoryClick(categoryId)
+                        onCategoryClick(categoryId, categoryTitle)
                     })
             } else {
                 MainScreenPurchaseContent(allPurchaseItems, keyboard, appTopBarStateType,
@@ -253,7 +253,7 @@ fun MainScreenCategoryContent(
     keyboard: SoftwareKeyboardController?,
     appTopBarStateType: AppTopBarStateType,
     onCategoryManage: (id: Long, title: String, oldTitle: String, spentSum: String, expectSum: String) -> Unit,
-    onCategoryClick: (Long) -> Unit
+    onCategoryClick: (categoryId: Long, categoryTitle: String) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -304,7 +304,7 @@ fun MainScreenCategoryContent(
                                 onCategoryManage(item.id, title, item.title, spentSum, expectedSum)
                             },
                             onCategoryClick = {
-                                onCategoryClick(item.id)
+                                onCategoryClick(item.id, item.title)
                             }
                         )
                     }

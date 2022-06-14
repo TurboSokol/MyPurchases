@@ -5,13 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -29,7 +25,6 @@ import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.ContentType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import com.turbosokol.mypurchases.common.purchases.redux.PurchaseAction
-import comturbosokolmypurchases.PurchaseDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -47,25 +42,24 @@ const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
+    categoryTitle: String
 ) {
+    viewModel.execute(PurchaseAction.GetAllPurchasesByParent(categoryTitle))
+
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
     val categoriesState = state.getCategoriesState()
     val purchaseState = state.getPurchaseState()
     val navigationState = state.getNavigationState()
 
+    var categoryPurchases by remember {
+        mutableStateOf(purchaseState.categoryPurchases)
+    }
     val expandableList = categoriesState.targetCategory
-    val allPurchases = purchaseState.purchaseItems
+
 
     val allCategoryItems = categoriesState.categoryItems
     val appTopBarStateType = navigationState.appTopBarStateType
-
-    val currentPurchasesList: MutableList<PurchaseDb> = mutableListOf()
-    allPurchases.forEach { purchase ->
-        if (purchase.parent == expandableList.title) {
-            currentPurchasesList.add(purchase)
-        }
-    }
 
     val keyboard = LocalSoftwareKeyboardController.current
     val scrollState = rememberLazyListState()
@@ -135,7 +129,8 @@ fun CategoryExpandedScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyColumn(state = scrollState) {
-                itemsIndexed(currentPurchasesList) { index, item ->
+                categoryPurchases = purchaseState.categoryPurchases
+                itemsIndexed(categoryPurchases) { index, item ->
                     PurchaseColumnItem(
                         id = item.id,
                         parentTitle = item.parent,
@@ -169,7 +164,6 @@ fun CategoryExpandedScreen(
                         }
                     )
                 }
-
             }
         }
     }
