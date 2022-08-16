@@ -44,11 +44,11 @@ class CategoriesMiddleware(private val myPurchaseDAO: MyPurchaseDAO) : Middlewar
             }
 
             is CategoriesAction.GetCategory -> flow {
+                emit(CategoriesAction.CategoryProgressTrue)
                 val data = myPurchaseDAO.getCategoryById(action.categoryId)
                 data?.let {
                     emit(CategoriesAction.SetTargetCategory(it))
                 }
-
             }
 
             is CategoriesAction.DeleteAllCategories -> flow {

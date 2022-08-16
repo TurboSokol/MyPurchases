@@ -131,7 +131,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                                 expectedSum = if (expectSumValue.value.isNotEmpty()) expectSumValue.value.toDouble() else null
                             )
                         )
-                        viewModel.execute(NavigationAction.HideAddContent())
+                        viewModel.execute(NavigationAction.HideAddContent)
                         titleValue.value = ""
                         expectSumValue.value = ""
                     }

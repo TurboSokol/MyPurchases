@@ -7,10 +7,10 @@ class NavigationReducer: Reducer<NavigationState> {
     override fun reduce(oldState: NavigationState, action: Action): NavigationState {
         return when (action) {
             is NavigationAction.ShowAddContent -> {
-                oldState.copy(addButtonType = action.contentType)
+                oldState.copy(showAddContent = true, addButtonType = action.contentType)
             }
             is NavigationAction.HideAddContent -> {
-                oldState.copy(showAddContent = action.showAddContent)
+                oldState.copy(showAddContent = false)
             }
             is NavigationAction.SwitchMainScreenLook -> {
                 oldState.copy(contentType = action.contentType)

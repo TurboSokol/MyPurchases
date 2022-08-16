@@ -24,7 +24,7 @@ data class NavigationState(
 
 sealed class NavigationAction : Action {
     data class ShowAddContent(val contentType: ContentType) : NavigationAction()
-    data class HideAddContent(val showAddContent: Boolean = false): NavigationAction()
+    object HideAddContent: NavigationAction()
     data class SwitchMainScreenLook(val contentType: ContentType): NavigationAction()
     data class SwitchAppBarStateType(val appBarStateType: AppTopBarStateType): NavigationAction()
     data class CheckChanges(val flag: Boolean): NavigationAction()
