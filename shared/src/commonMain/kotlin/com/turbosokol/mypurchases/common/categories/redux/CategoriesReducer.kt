@@ -15,7 +15,7 @@ class CategoriesReducer : Reducer<CategoriesState> {
             is CategoriesAction.GetAllCategories -> {
                 oldState.copy(progress = true)
             }
-            is CategoriesAction.GetCategory -> {
+            is CategoriesAction.CategoryProgressTrue -> {
                 oldState.copy(progress = true)
             }
             is CategoriesAction.DeleteAllCategories -> {

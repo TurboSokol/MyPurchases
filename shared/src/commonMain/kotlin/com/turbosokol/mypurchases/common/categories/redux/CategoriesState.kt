@@ -36,5 +36,5 @@ sealed class CategoriesAction : Action {
     data class SetTargetCategory(val targetCategory: CategoriesDb) : CategoriesAction()
     object DeleteAllCategories : CategoriesAction()
     data class DeleteCategoryById(val id: Long) : CategoriesAction()
-
+    object CategoryProgressTrue: CategoriesAction()
 }

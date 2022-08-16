@@ -53,7 +53,7 @@ const val MAIN_SCREEN_ROTE = "Main Screen"
 fun MainScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    onCategoryClick: (categoryId: Long, categoryTitle: String) -> Unit
+    onCategoryClick: (categoryTitle: String) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -96,6 +96,7 @@ fun MainScreen(
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = true,
                 onOptionsClick = {
+                    viewModel.execute(NavigationAction.HideAddContent)
                     if (appTopBarStateType != AppTopBarStateType.DEFAULT) {
                         viewModel.execute(NavigationAction.SwitchAppBarStateType(AppTopBarStateType.DEFAULT))
                     }
@@ -175,7 +176,6 @@ fun MainScreen(
         ) {
             if (contentType == ContentType.Categories) {
                 MainScreenCategoryContent(
-//                    allCategoryItems,
                     keyboard = keyboard, appTopBarStateType = appTopBarStateType,
                     onCategoryManage = { id, title, oldTitle, spentSum, expectSum ->
                         when (appTopBarStateType) {
@@ -212,14 +212,17 @@ fun MainScreen(
                                         AppTopBarStateType.DEFAULT
                                     )
                                 )
-
                             }
                             else -> {}
                         }
                     },
-                    onCategoryClick = { categoryId, categoryTitle ->
+                    onCategoryClick = {categoryId, categoryTitle ->
+                        viewModel.execute(CategoriesAction.GetCategory(categoryId))
+                        viewModel.execute(PurchaseAction.GetAllPurchasesByParent(categoryTitle))
                         // IMPLEMENTED in navigation
-                        onCategoryClick(categoryId, categoryTitle)
+                        if (!purchasesState.progress && !categoriesState.progress) {
+                            onCategoryClick(categoryTitle)
+                        }
                     })
             } else {
                 MainScreenPurchaseContent(purchaseItems = allPurchaseItems, keyboard = keyboard, appTopBarStateType = appTopBarStateType,

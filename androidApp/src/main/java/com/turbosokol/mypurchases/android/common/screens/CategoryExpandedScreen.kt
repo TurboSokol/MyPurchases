@@ -69,7 +69,7 @@ fun CategoryExpandedScreen(
     BottomSheetScaffold(
         topBar = {
             AppTopBar(
-                title = (expandableList.title + " " + expandableList.expectedSum.toString()),
+                title = ("$categoryTitle ${expandableList.expectedSum}"),
                 hasBackButton = true,
                 onBackClick = { navController.popBackStack() },
                 hasOptionsButton = false,

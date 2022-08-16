@@ -191,6 +191,8 @@ fun AddPurchaseContent(
                                     categoryTitle = categoryTitleValue.value,
                                     spentSum = coastValue.value
                                 )
+
+                                viewModel.execute(NavigationAction.HideAddContent)
                             }
                         }
 
@@ -217,6 +219,8 @@ fun AddPurchaseContent(
                                     categoryTitle = categoryTitleValue.value,
                                     spentSum = coastValue.value
                                 )
+
+                                viewModel.execute(NavigationAction.HideAddContent)
                             }
                         }
                         else -> {}
@@ -224,7 +228,6 @@ fun AddPurchaseContent(
                     categoryTitleValue.value = ""
                     coastValue.value = ""
                     descriptionValue.value = ""
-                    viewModel.execute(NavigationAction.HideAddContent())
 
                 }
             ) {
