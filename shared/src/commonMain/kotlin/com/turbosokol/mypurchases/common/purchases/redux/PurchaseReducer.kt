@@ -12,10 +12,10 @@ class PurchaseReducer : Reducer<PurchaseState> {
             is PurchaseAction.EditPurchase -> {
                 oldState.copy(progress = true)
             }
-            is PurchaseAction.PurchaseProgressTrue -> {
+            is PurchaseAction.GetAllPurchases -> {
                 oldState.copy(progress = true)
             }
-            is PurchaseAction.GetAllPurchases -> {
+            is PurchaseAction.GetAllPurchasesByParent -> {
                 oldState.copy(progress = true)
             }
             is PurchaseAction.GetEditablePurchase -> {

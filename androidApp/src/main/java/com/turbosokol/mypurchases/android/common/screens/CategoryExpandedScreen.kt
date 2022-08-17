@@ -21,11 +21,13 @@ import com.turbosokol.mypurchases.android.common.utils.deletePurchaseSafety
 import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
+import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
 import com.turbosokol.mypurchases.common.navigation.redux.ContentType
 import com.turbosokol.mypurchases.common.navigation.redux.NavigationAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import kotlin.time.ExperimentalTime
@@ -41,6 +43,7 @@ const val CATEGORIES_EXPANDED_VIEW_ROUTE = "Category Screen"
 fun CategoryExpandedScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
+    categoryId: Long,
     categoryTitle: String
 ) {
 
@@ -50,9 +53,7 @@ fun CategoryExpandedScreen(
     val purchaseState = state.getPurchaseState()
     val navigationState = state.getNavigationState()
 
-    var categoryPurchases by remember {
-        mutableStateOf(purchaseState.categoryPurchases)
-    }
+    viewModel.execute(CategoriesAction.GetCategory(categoryId))
     val expandableList = categoriesState.targetCategory
 
 
@@ -65,6 +66,7 @@ fun CategoryExpandedScreen(
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
     )
+
 
     BottomSheetScaffold(
         topBar = {
@@ -106,7 +108,11 @@ fun CategoryExpandedScreen(
             if (bottomSheetState.bottomSheetState.isCollapsed) {
                 Row(
                     modifier = Modifier
-                        .padding(start = AppTheme.appPaddingMedium8, end = AppTheme.appPaddingMedium8, bottom = 48.dp),
+                        .padding(
+                            start = AppTheme.appPaddingMedium8,
+                            end = AppTheme.appPaddingMedium8,
+                            bottom = 48.dp
+                        ),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -126,43 +132,49 @@ fun CategoryExpandedScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyColumn(state = scrollState) {
-                categoryPurchases = purchaseState.categoryPurchases
-                itemsIndexed(categoryPurchases) { index, item ->
-                    PurchaseColumnItem(
-                        id = item.id,
-                        parentTitle = item.parent,
-                        coast = item.coast,
-                        description = item.description ?: "",
-                        keyboard = keyboard,
-                        appTopBarStateType = appTopBarStateType,
-                        onPurchaseModified = { id, parent, newCoast, description ->
-                            //find editable category and edit coast values
-                            editPurchaseSafety(
-                                id = id,
-                                parent = parent,
-                                oldCoast = item.coast,
-                                newCoast = newCoast,
-                                description = description,
-                                categoryItems = allCategoryItems
-                            )
-                            viewModel.execute(
-                                NavigationAction.SwitchAppBarStateType(
-                                    AppTopBarStateType.DEFAULT
+            if (purchaseState.progress) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(state = scrollState) {
+                    itemsIndexed(purchaseState.categoryPurchases) { index, item ->
+                        PurchaseColumnItem(
+                            id = item.id,
+                            parentTitle = item.parent,
+                            coast = item.coast,
+                            description = item.description ?: "",
+                            keyboard = keyboard,
+                            appTopBarStateType = appTopBarStateType,
+                            onPurchaseModified = { id, parent, newCoast, description ->
+                                //find editable category and edit coast values
+                                editPurchaseSafety(
+                                    id = id,
+                                    parent = parent,
+                                    oldCoast = item.coast,
+                                    newCoast = newCoast,
+                                    description = description,
+                                    categoryItems = allCategoryItems
                                 )
-                            )
-                        },
-                        onPurchaseDeleted = {
-                            deletePurchaseSafety(
-                                id = item.id,
-                                parent = item.parent,
-                                coast = item.coast,
-                                allCategoryItems = allCategoryItems
-                            )
-                        }
-                    )
+                                viewModel.execute(
+                                    NavigationAction.SwitchAppBarStateType(
+                                        AppTopBarStateType.DEFAULT
+                                    )
+                                )
+                            },
+                            onPurchaseDeleted = {
+                                deletePurchaseSafety(
+                                    id = item.id,
+                                    parent = item.parent,
+                                    coast = item.coast,
+                                    allCategoryItems = allCategoryItems
+                                )
+                            }
+                        )
+                    }
                 }
             }
+
         }
     }
 }

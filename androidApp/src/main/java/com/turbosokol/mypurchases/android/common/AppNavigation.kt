@@ -36,15 +36,16 @@ fun AppNavigation(viewModel: ReduxViewModel = getViewModel()) {
         composable(MAIN_SCREEN_ROTE) {
             MainScreen(
                 navController = navController,
-                onCategoryClick = {categoryTitle ->
-                    navController.navigate("${CATEGORIES_EXPANDED_VIEW_ROUTE}/$categoryTitle")
+                onCategoryClick = {categoryId, categoryTitle->
+                    navController.navigate("${CATEGORIES_EXPANDED_VIEW_ROUTE}/$categoryId/$categoryTitle")
                 }
             )
         }
 
-        composable(route = "$CATEGORIES_EXPANDED_VIEW_ROUTE/{categoryTitle}") { backStackEntry ->
+        composable(route = "$CATEGORIES_EXPANDED_VIEW_ROUTE/{categoryId}/{categoryTitle}") { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
             val categoryTitle = backStackEntry.arguments?.getString("categoryTitle") ?: ""
-            CategoryExpandedScreen(navController = navController, categoryTitle = categoryTitle)
+            CategoryExpandedScreen(navController = navController, categoryId = categoryId, categoryTitle = categoryTitle)
 
         }
     }
