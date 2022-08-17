@@ -53,7 +53,7 @@ const val MAIN_SCREEN_ROTE = "Main Screen"
 fun MainScreen(
     viewModel: ReduxViewModel = getViewModel(),
     navController: NavController,
-    onCategoryClick: (categoryTitle: String) -> Unit
+    onCategoryClick: (categoryId: Long, categoryTitle: String) -> Unit
 ) {
     val stateFlow: StateFlow<AppState> = viewModel.store.observeAsState()
     val state by stateFlow.collectAsState(Dispatchers.Main)
@@ -146,7 +146,11 @@ fun MainScreen(
             if (bottomSheetState.bottomSheetState.isCollapsed) {
                 Row(
                     modifier = Modifier
-                        .padding(start = appPaddingMedium8, end = appPaddingMedium8, bottom = 48.dp),
+                        .padding(
+                            start = appPaddingMedium8,
+                            end = appPaddingMedium8,
+                            bottom = 48.dp
+                        ),
                     verticalAlignment = Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -216,19 +220,24 @@ fun MainScreen(
                             else -> {}
                         }
                     },
-                    onCategoryClick = {categoryId, categoryTitle ->
-                        viewModel.execute(CategoriesAction.GetCategory(categoryId))
+                    onCategoryClick = { categoryId, categoryTitle ->
                         viewModel.execute(PurchaseAction.GetAllPurchasesByParent(categoryTitle))
                         // IMPLEMENTED in navigation
-                        if (!purchasesState.progress && !categoriesState.progress) {
-                            onCategoryClick(categoryTitle)
-                        }
+                            onCategoryClick(categoryId, categoryTitle)
                     })
             } else {
-                MainScreenPurchaseContent(purchaseItems = allPurchaseItems, keyboard = keyboard, appTopBarStateType = appTopBarStateType,
+                MainScreenPurchaseContent(purchaseItems = allPurchaseItems,
+                    keyboard = keyboard,
+                    appTopBarStateType = appTopBarStateType,
                     onPurchaseDeleted = { id, parent, coast ->
-                        deletePurchaseSafety(id = id, parent = parent, coast = coast, allCategoryItems = allCategoryItems)
-                    }, onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
+                        deletePurchaseSafety(
+                            id = id,
+                            parent = parent,
+                            coast = coast,
+                            allCategoryItems = allCategoryItems
+                        )
+                    },
+                    onPurchaseModified = { id, parent, oldCoast, newCoast, description ->
                         //find editable category and edit coast values
                         editPurchaseSafety(
                             id = id,
@@ -291,8 +300,7 @@ fun MainScreenCategoryContent(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
                 CircularProgressIndicator()
             }
-        }
-        else {
+        } else {
             if (categoryItems.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
                     Text(text = stringResource(R.string.add_new_category_hint))
@@ -310,7 +318,13 @@ fun MainScreenCategoryContent(
                                 keyboard = keyboard,
                                 appTopBarStateType = appTopBarStateType,
                                 onCategoryManage = { title, spentSum, expectedSum ->
-                                    onCategoryManage(item.id, title, item.title, spentSum, expectedSum)
+                                    onCategoryManage(
+                                        item.id,
+                                        title,
+                                        item.title,
+                                        spentSum,
+                                        expectedSum
+                                    )
                                 },
                                 onCategoryClick = {
                                     onCategoryClick(item.id, item.title)
@@ -348,16 +362,24 @@ fun MainScreenPurchaseContent(
                 .padding(appPaddingMedium8),
             verticalAlignment = CenterVertically
         ) {
-            Text(modifier = Modifier.weight(0.4F), textAlign = TextAlign.Center, text = stringResource(
-                            R.string.coast_text)
-                        )
-            Text(modifier = Modifier.weight(0.6F), textAlign = TextAlign.Center, text = stringResource(
-                            R.string.title_text)
-                        )
+            Text(
+                modifier = Modifier.weight(0.4F),
+                textAlign = TextAlign.Center,
+                text = stringResource(
+                    R.string.coast_text
+                )
+            )
+            Text(
+                modifier = Modifier.weight(0.6F),
+                textAlign = TextAlign.Center,
+                text = stringResource(
+                    R.string.title_text
+                )
+            )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (purchaseState.progress) {
+            if (purchaseState.progress == true) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Center) {
                     CircularProgressIndicator()
                 }

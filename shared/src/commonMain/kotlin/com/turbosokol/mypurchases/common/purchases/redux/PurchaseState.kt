@@ -3,6 +3,8 @@ package com.turbosokol.mypurchases.common.purchases.redux
 import com.turbosokol.mypurchases.core.redux.Action
 import com.turbosokol.mypurchases.core.redux.GeneralState
 import comturbosokolmypurchases.PurchaseDb
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 data class PurchaseState(
     val progress: Boolean,
@@ -16,7 +18,7 @@ data class PurchaseState(
 
     companion object {
         fun getDefault(): PurchaseState = PurchaseState(
-            progress = true,
+            progress = false,
             purchaseItems = emptyList(),
             purchaseId = 0.0,
             coast = 0.0,
@@ -31,7 +33,6 @@ sealed class PurchaseAction: Action {
     data class AddPurchase(val parentTitle: String, val coast: Double, val description: String? = null): PurchaseAction()
     data class EditPurchase(val id: Long, val parentTitle: String, val coast: Double, val description: String? = null): PurchaseAction()
     object GetAllPurchases: PurchaseAction()
-    object PurchaseProgressTrue: PurchaseAction()
     data class GetAllPurchasesByParent(val parentTitle: String): PurchaseAction()
     data class SetCategoryPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
     data class SetPurchases(val purchaseItems: List<PurchaseDb>): PurchaseAction()
