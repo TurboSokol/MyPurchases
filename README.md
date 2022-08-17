@@ -1,8 +1,8 @@
 # MyPurchases
 Simple purchases counter (
 
-+ [X]KMM, 
-+ [X]SQL Delight,
++ [X] KMM, 
++ [X] SQL Delight,
 + [X] Compose)
 
 
