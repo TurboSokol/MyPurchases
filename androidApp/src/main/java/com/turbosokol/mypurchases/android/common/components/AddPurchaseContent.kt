@@ -34,6 +34,7 @@ import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
 import com.turbosokol.mypurchases.android.common.utils.manageOrAddCategorySafety
+import com.turbosokol.mypurchases.android.common.utils.validateCoastsFormat
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
@@ -125,8 +126,7 @@ fun AddPurchaseContent(
                     modifier = Modifier.padding(start = 8.dp),
                     value = coastValue.value,
                     onValueChange = { text ->
-                        val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
-                        coastValue.value = validateRegexPattern.find(text)?.value.toString()
+                        coastValue.value = validateCoastsFormat(text) ?: ""
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,

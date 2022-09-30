@@ -27,6 +27,7 @@ import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
 import com.turbosokol.mypurchases.android.common.utils.editPurchaseSafety
+import com.turbosokol.mypurchases.android.common.utils.validateCoastsFormat
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.navigation.redux.AppTopBarStateType
@@ -148,8 +149,7 @@ fun PurchaseColumnItem(
                         }), value = coastValue.value,
                         enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
                         onValueChange = { text ->
-                            val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
-                            coastValue.value = validateRegexPattern.find(text)?.value.toString()
+                            coastValue.value = validateCoastsFormat(text)
                         })
                 }
             }

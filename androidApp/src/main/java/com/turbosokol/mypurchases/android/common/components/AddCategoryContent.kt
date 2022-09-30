@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.turbosokol.mypurchases.android.R
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
+import com.turbosokol.mypurchases.android.common.utils.validateCoastsFormat
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -86,6 +87,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                 )
             }
 
+            //ExpectedSum
             Row(
                 modifier = Modifier
                     .padding(top = 8.dp)
@@ -103,7 +105,7 @@ fun AddCategoryContent(viewModel: ReduxViewModel = getViewModel(), keyboard: Sof
                     modifier = Modifier.padding(start = 8.dp),
                     value = expectSumValue.value,
                     onValueChange = {
-                        expectSumValue.value = it
+                        expectSumValue.value = validateCoastsFormat(it)
                     },
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
