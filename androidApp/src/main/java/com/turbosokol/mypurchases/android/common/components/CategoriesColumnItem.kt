@@ -20,11 +20,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.DesignElements.map
 import com.turbosokol.mypurchases.android.common.theme.AppTheme
 import com.turbosokol.mypurchases.android.common.theme.MyDarkRedColor
 import com.turbosokol.mypurchases.android.common.theme.MyPrimary
 import com.turbosokol.mypurchases.android.common.theme.MyRedColor
 import com.turbosokol.mypurchases.android.common.utils.editCategorySafety
+import com.turbosokol.mypurchases.android.common.utils.validateCoastsFormat
 import com.turbosokol.mypurchases.android.core.ReduxViewModel
 import com.turbosokol.mypurchases.common.app.AppState
 import com.turbosokol.mypurchases.common.categories.redux.CategoriesAction
@@ -185,8 +187,7 @@ fun CategoriesColumnItem(
                     value = spentSumValue,
                     enabled = (appTopBarStateType == AppTopBarStateType.EDIT),
                     onValueChange = { text: String ->
-                        val validateRegexPattern = """[0-9\\.]{0,64}""".toRegex()
-                        spentSumValue = validateRegexPattern.find(text)?.value.toString()
+                        spentSumValue = validateCoastsFormat(text)
                     }
                 )
             }
