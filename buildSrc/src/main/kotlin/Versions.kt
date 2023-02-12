@@ -4,8 +4,8 @@ object Versions {
         const val iOSDeploymentTarget = "15"
 
         const val gradle = "7.1.3"
-        const val kotlin = "1.6.21"
-        const val compose = "1.2.0-beta01"
+        const val kotlin = "1.7.10"
+        const val compose = "1.2.1"
         const val constraint_layout_compose = "1.0.0"
         const val constraint_layout = "2.1.3"
         const val coroutines = "1.6.0"
